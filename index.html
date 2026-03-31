@@ -24,10 +24,113 @@
             background: var(--ink);
         }
 
-        .container {
-            max-width: 800px;
+        /* Main layout container: left content + right image panel */
+        .main-layout {
+            display: flex;
+            gap: 40px;
+            max-width: 1200px;
             margin: 0 auto;
             padding: 60px 20px;
+            align-items: flex-start;
+        }
+
+        /* Left side: original content area */
+        .content-left {
+            flex: 2;
+            min-width: 0; /* prevent overflow */
+        }
+
+        /* Right side: vertical image column */
+        .image-right {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+            position: sticky;
+            top: 60px;
+            align-self: flex-start;
+        }
+
+        /* image card styling to match dark theme */
+        .image-card {
+            background: #111;
+            border-radius: 20px;
+            padding: 20px;
+            border: 1px solid #222;
+            text-align: center;
+            transition: transform 0.2s ease, border-color 0.2s;
+        }
+
+        .image-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--accent);
+        }
+
+        .image-card img {
+            width: 100%;
+            max-width: 220px;
+            height: auto;
+            border-radius: 16px;
+            display: block;
+            margin: 0 auto 12px auto;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            background: #1a1a1a;
+            object-fit: cover;
+        }
+
+        .image-caption {
+            font-weight: 600;
+            color: var(--cream);
+            margin-top: 8px;
+            font-size: 1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .image-sub {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            margin-top: 4px;
+        }
+
+        /* responsive behavior: on smaller screens images move below */
+        @media (max-width: 900px) {
+            .main-layout {
+                flex-direction: column;
+                padding: 40px 20px;
+            }
+            .image-right {
+                flex-direction: row;
+                justify-content: center;
+                gap: 24px;
+                position: static;
+                margin-top: 20px;
+                flex-wrap: wrap;
+            }
+            .image-card {
+                flex: 1;
+                min-width: 180px;
+            }
+            .content-left {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .image-right {
+                flex-direction: column;
+                align-items: center;
+            }
+            .image-card {
+                width: 100%;
+                max-width: 280px;
+            }
+        }
+
+        /* preserve all original styles inside left column */
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
         }
 
         header {
@@ -159,6 +262,7 @@
             color: var(--cream);
             opacity: 0.6;
             font-size: 14px;
+            margin-top: 20px;
         }
 
         .price {
@@ -197,71 +301,94 @@
                 width: 100%;
                 text-align: center;
             }
+
+            .features, .use-cases, .cta-section {
+                padding: 24px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Professional Business Card</h1>
-            <p class="subtitle">Fill out a form, get a perfect PDF. No design skills needed.</p>
-        </header>
+    <div class="main-layout">
+        <!-- LEFT SIDE: original content from the business card template -->
+        <div class="content-left">
+            <div class="container">
+                <header>
+                    <h1>Professional Business Card</h1>
+                    <p class="subtitle">Fill out a form, get a perfect PDF. No design skills needed.</p>
+                </header>
 
-        <div class="cta-buttons">
-            <a href="portfolio-refactored(watermarked).html" class="btn btn-secondary">Try it free</a>
-            <a href="https://gumroad.com/YOUR_GUMROAD_LINK" class="btn btn-primary">Buy for €2</a>
+                <div class="cta-buttons">
+                    <a href="portfolio-refactored(watermarked).html" class="btn btn-secondary">Try it free</a>
+                    <a href="https://gumroad.com/YOUR_GUMROAD_LINK" class="btn btn-primary">Buy for €2</a>
+                </div>
+
+                <div class="section">
+                    <h2>What is this?</h2>
+                    <p>A professional one-page business card template designed for freelancers, consultants, and job seekers.</p>
+                    <p>Fill in your details, and instantly get a polished PDF you can email, print, or share.</p>
+                    <p>No templates to choose from, no pixel-pushing, no design decisions.</p>
+                    <p>Just a form and a perfectly formatted result.</p>
+                </div>
+
+                <div class="features">
+                    <h2>Why use it?</h2>
+                    <div class="feature-item">
+                        <div class="feature-title">Effortless</div>
+                        <div class="feature-desc">Fill out a form. Get your PDF. Takes 2 minutes.</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-title">Always Perfect</div>
+                        <div class="feature-desc">Text auto-sizes. Spacing is always right. Looks good whether you write 10 words or 200.</div>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-title">ATS-Optimized Skills</div>
+                        <div class="feature-desc">Skills section formatted for both human readers and automated CV scanners.</div>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Who is this for?</h2>
+                    <div class="use-cases">
+                        <div class="use-case">✓ Freelancers sending pitches to clients</div>
+                        <div class="use-case">✓ Job seekers standing out in applications</div>
+                        <div class="use-case">✓ Consultants handing out at networking events</div>
+                        <div class="use-case">✓ Professionals who want something better than their resume</div>
+                    </div>
+                </div>
+
+                <div class="cta-section">
+                    <h2>Ready to get started?</h2>
+                    <p style="margin-bottom: 30px;">Try the demo for free. If you like it, buy the downloadable version for just €2.</p>
+                    <div class="cta-buttons">
+                        <a href="portfolio-refactored(watermarked).html" class="btn btn-secondary">Try it free</a>
+                        <a href="https://gumroad.com/YOUR_GUMROAD_LINK" class="btn btn-primary">Buy for €2</a>
+                    </div>
+                    <div class="price">€2</div>
+                    <p style="font-size: 14px;">One-time purchase. Unlimited PDFs.</p>
+                </div>
+
+                <footer>
+                    <p>&copy; 2026. All rights reserved.</p>
+                </footer>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>What is this?</h2>
-            <p>A professional one-page business card template designed for freelancers, consultants, and job seekers.<p>
-              <p>Fill in your details, and instantly get a polished PDF you can email, print, or share.</p>
-            <p>No templates to choose from, no pixel-pushing, no design decisions.</p>
-          </p>Just a form and a perfectly formatted result.</p>
-        </div>
-
-        <div class="features">
-            <h2>Why use it?</h2>
-            <div class="feature-item">
-                <div class="feature-title">Effortless</div>
-                <div class="feature-desc">Fill out a form. Get your PDF. Takes 2 minutes.</div>
+        <!-- RIGHT SIDE: two images JohnDoe.png and JaneDoe.png one under the other -->
+        <div class="image-right">
+            <!-- John Doe image card -->
+            <div class="image-card">
+                <img src="JohnDoe.png" alt="John Doe professional portrait" onerror="this.onerror=null; this.src='https://placehold.co/400x500/1a1a1a/ff3e00?text=JohnDoe.png'; this.alt='John Doe placeholder';">
+                <div class="image-caption">John Doe</div>
+                <div class="image-sub">Founder & Creative Director</div>
             </div>
-            <div class="feature-item">
-                <div class="feature-title">Always Perfect</div>
-                <div class="feature-desc">Text auto-sizes. Spacing is always right. Looks good whether you write 10 words or 200.</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-title">ATS-Optimized Skills</div>
-                <div class="feature-desc">Skills section formatted for both human readers and automated CV scanners.</div>
-            </div>
-            <div class="feature-item">
+            <!-- Jane Doe image card -->
+            <div class="image-card">
+                <img src="JaneDoe.png" alt="Jane Doe professional portrait" onerror="this.onerror=null; this.src='https://placehold.co/400x500/1a1a1a/ff3e00?text=JaneDoe.png'; this.alt='Jane Doe placeholder';">
+                <div class="image-caption">Jane Doe</div>
+                <div class="image-sub">Lead Designer & Strategist</div>
             </div>
         </div>
-
-        <div class="section">
-            <h2>Who is this for?</h2>
-            <div class="use-cases">
-                <div class="use-case">✓ Freelancers sending pitches to clients</div>
-                <div class="use-case">✓ Job seekers standing out in applications</div>
-                <div class="use-case">✓ Consultants handing out at networking events</div>
-                <div class="use-case">✓ Professionals who want something better than their resume</div>
-            </div>
-        </div>
-
-        <div class="cta-section">
-            <h2>Ready to get started?</h2>
-            <p style="margin-bottom: 30px;">Try the demo for free. If you like it, buy the downloadable version for just €2.</p>
-            <div class="cta-buttons">
-                <a href="portfolio-refactored(watermarked).html" class="btn btn-secondary">Try it free</a>
-                <a href="https://gumroad.com/YOUR_GUMROAD_LINK" class="btn btn-primary">Buy for €2</a>
-            </div>
-            <div class="price">€2</div>
-            <p style="font-size: 14px;">One-time purchase. Unlimited PDFs.</p>
-        </div>
-
-        <footer>
-            <p>&copy; 2026. All rights reserved.</p>
-        </footer>
     </div>
 </body>
 </html>
