@@ -27,10 +27,10 @@
         /* Main layout container: left content + right image panel */
         .main-layout {
             display: flex;
-            gap: 40px;
-            max-width: 1200px;
+            gap: 48px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 60px 20px;
+            padding: 60px 40px;
             align-items: flex-start;
         }
 
@@ -40,89 +40,119 @@
             min-width: 0; /* prevent overflow */
         }
 
-        /* Right side: vertical image column */
+        /* Right side: vertical image column - IMAGES NOW LARGER */
         .image-right {
-            flex: 1;
+            flex: 1.2;
             display: flex;
             flex-direction: column;
-            gap: 32px;
+            gap: 48px;
             position: sticky;
             top: 60px;
             align-self: flex-start;
         }
 
-        /* image card styling to match dark theme */
+        /* image card styling - ENLARGED (twice the size relative to previous) */
         .image-card {
             background: #111;
-            border-radius: 20px;
-            padding: 20px;
+            border-radius: 28px;
+            padding: 28px;
             border: 1px solid #222;
             text-align: center;
-            transition: transform 0.2s ease, border-color 0.2s;
+            transition: transform 0.25s ease, border-color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
         }
 
         .image-card:hover {
-            transform: translateY(-4px);
+            transform: translateY(-6px);
             border-color: var(--accent);
+            box-shadow: 0 20px 32px rgba(0,0,0,0.4);
         }
 
+        /* images now twice the previous size: increased width & height */
         .image-card img {
             width: 100%;
-            max-width: 220px;
+            max-width: 440px;    /* previously ~220px, now doubled to 440px */
             height: auto;
-            border-radius: 16px;
+            border-radius: 20px;
             display: block;
-            margin: 0 auto 12px auto;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            margin: 0 auto 16px auto;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.5);
             background: #1a1a1a;
             object-fit: cover;
+            transition: transform 0.2s;
+        }
+
+        .image-card:hover img {
+            transform: scale(1.02);
         }
 
         .image-caption {
-            font-weight: 600;
+            font-weight: 700;
             color: var(--cream);
-            margin-top: 8px;
-            font-size: 1rem;
-            letter-spacing: 0.3px;
+            margin-top: 12px;
+            font-size: 1.35rem;
+            letter-spacing: 0.5px;
         }
 
         .image-sub {
-            font-size: 0.8rem;
-            opacity: 0.6;
-            margin-top: 4px;
+            font-size: 0.95rem;
+            opacity: 0.7;
+            margin-top: 6px;
+            color: var(--accent);
         }
 
-        /* responsive behavior: on smaller screens images move below */
+        /* responsive behavior: on smaller screens images move below and scale down but still large */
+        @media (max-width: 1100px) {
+            .main-layout {
+                gap: 36px;
+                padding: 40px 28px;
+            }
+            .image-card img {
+                max-width: 360px;
+            }
+        }
+
         @media (max-width: 900px) {
             .main-layout {
                 flex-direction: column;
-                padding: 40px 20px;
+                padding: 40px 24px;
             }
             .image-right {
                 flex-direction: row;
                 justify-content: center;
-                gap: 24px;
+                gap: 40px;
                 position: static;
-                margin-top: 20px;
+                margin-top: 30px;
                 flex-wrap: wrap;
             }
             .image-card {
                 flex: 1;
-                min-width: 180px;
+                min-width: 280px;
+                max-width: 420px;
+            }
+            .image-card img {
+                max-width: 100%;
             }
             .content-left {
                 width: 100%;
             }
         }
 
-        @media (max-width: 550px) {
+        @media (max-width: 650px) {
             .image-right {
                 flex-direction: column;
                 align-items: center;
+                gap: 36px;
             }
             .image-card {
                 width: 100%;
-                max-width: 280px;
+                max-width: 380px;
+            }
+            .image-card img {
+                max-width: 100%;
+            }
+            .image-caption {
+                font-size: 1.2rem;
             }
         }
 
@@ -305,12 +335,21 @@
             .features, .use-cases, .cta-section {
                 padding: 24px;
             }
+            
+            .image-card {
+                padding: 20px;
+            }
+        }
+        
+        /* subtle fallback for missing images */
+        img[alt*="placeholder"] {
+            filter: brightness(0.9);
         }
     </style>
 </head>
 <body>
     <div class="main-layout">
-        <!-- LEFT SIDE: original content from the business card template -->
+        <!-- LEFT SIDE: original business card content (unchanged) -->
         <div class="content-left">
             <div class="container">
                 <header>
@@ -374,17 +413,21 @@
             </div>
         </div>
 
-        <!-- RIGHT SIDE: two images JohnDoe.png and JaneDoe.png one under the other -->
+        <!-- RIGHT SIDE: two images (JohnDoe.png and JaneDoe.png) displayed one under the other, now DOUBLE SIZE -->
         <div class="image-right">
-            <!-- John Doe image card -->
+            <!-- John Doe - image size now twice as large (max-width increased from ~220px to 440px) -->
             <div class="image-card">
-                <img src="JohnDoe.png" alt="John Doe professional portrait" onerror="this.onerror=null; this.src='https://placehold.co/400x500/1a1a1a/ff3e00?text=JohnDoe.png'; this.alt='John Doe placeholder';">
+                <img src="JohnDoe.png" 
+                     alt="John Doe professional headshot - founder portrait" 
+                     onerror="this.onerror=null; this.src='https://placehold.co/800x1000/1a1a1a/ff3e00?text=JohnDoe.png+%E2%96%B2'; this.alt='John Doe image placeholder';">
                 <div class="image-caption">John Doe</div>
                 <div class="image-sub">Founder & Creative Director</div>
             </div>
-            <!-- Jane Doe image card -->
+            <!-- Jane Doe - equally enlarged, crisp display -->
             <div class="image-card">
-                <img src="JaneDoe.png" alt="Jane Doe professional portrait" onerror="this.onerror=null; this.src='https://placehold.co/400x500/1a1a1a/ff3e00?text=JaneDoe.png'; this.alt='Jane Doe placeholder';">
+                <img src="JaneDoe.png" 
+                     alt="Jane Doe professional headshot - design strategist" 
+                     onerror="this.onerror=null; this.src='https://placehold.co/800x1000/1a1a1a/ff3e00?text=JaneDoe.png+%E2%96%B2'; this.alt='Jane Doe image placeholder';">
                 <div class="image-caption">Jane Doe</div>
                 <div class="image-sub">Lead Designer & Strategist</div>
             </div>
