@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Business Card Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f9f9f9;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            color: #0a0a0a;
+        }
+
+        .subtitle {
+            font-size: 20px;
+            color: #666;
+            margin-bottom: 40px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 80px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #ff3e00;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #ff3e00;
+            border: 2px solid #ff3e00;
+        }
+
+        .btn-secondary:hover {
+            background: #fff5f5;
+        }
+
+        .section {
+            margin-bottom: 60px;
+        }
+
+        .section h2 {
+            font-size: 28px;
+            margin-bottom: 16px;
+            color: #0a0a0a;
+        }
+
+        .section p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        .features {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin: 40px 0;
+        }
+
+        .feature-item {
+            margin-bottom: 24px;
+        }
+
+        .feature-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .feature-title {
+            font-weight: 600;
+            color: #0a0a0a;
+            margin-bottom: 8px;
+        }
+
+        .feature-desc {
+            color: #666;
+            font-size: 15px;
+        }
+
+        .use-cases {
+            background: #f0f0f0;
+            padding: 40px;
+            border-radius: 12px;
+            margin: 40px 0;
+        }
+
+        .use-case {
+            margin-bottom: 16px;
+            color: #666;
+        }
+
+        .use-case:last-child {
+            margin-bottom: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding-top: 40px;
+            border-top: 1px solid #eee;
+            color: #999;
+            font-size: 14px;
+        }
+
+        .price {
+            font-size: 32px;
+            color: #ff3e00;
+            font-weight: 700;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 32px;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Professional Business Card</h1>
+            <p class="subtitle">Fill out a form. Get a perfect PDF. No design skills needed.</p>
+        </header>
+
+        <div class="cta-buttons">
+            <a href="portfolio-refactored.html" class="btn btn-secondary">Try it free</a>
+            <a href="https://gumroad.com/YOUR_GUMROAD_LINK" class="btn btn-primary">Buy for €2</a>
+        </div>
+
+        <div class="section">
+            <h2>What is this?</h2>
+            <p>A professional one-page business card generator designed for freelancers, consultants, and job seekers. Fill in your details, and instantly get a polished PDF you can email, print, or share.</p>
+            <p>No templates to choose from. No pixel-pushing. No design decisions. Just a form and a perfectly formatted result.</p>
+        </div>
+
+        <div class="features">
+            <h2>Why use it?</h2>
+            <div class="feature-item">
+                <div class="feature-title">⚡ Effortless</div>
+                <div class="feature-desc">Fill out a form. Get your PDF. Takes 2 minutes.</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-title">📄 Always Perfect</div>
+                <div class="feature-desc">Text auto-sizes. Spacing is always right. Works whether you write 10 words or 200.</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-title">🔍 ATS-Optimized Skills</div>
+                <div class="feature-desc">Skills section formatted for both human readers and automated CV scanners.</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-title">📱 Use Anywhere</div>
+                <div class="feature-desc">Works on desktop, tablet, or phone. Generate PDF and email immediately.</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Who is this for?</h2>
+            <div class="use-cases">
+                <div class="use-case">✓ Freelancers sending pitches to clients</div>
+                <div class="use-case">✓ Job seekers standing out in applications</div>
+                <div class="use-case">✓ Consultants handing out at networking events</div>
+                <div class="use-case">✓ Professionals who want something better than their resume</div>
+            </div>
+        </div>
+
+        <div class="section" style="text-align: center; background: white; padding: 40px; border-radius: 12px;">
+            <h2>Ready to get started?</h2>
+            <p style="margin-bottom: 30px; color: #666;">Try the demo for free. If you like it, buy the downloadable version for just €2.</p>
+            <div class="cta-buttons">
+                <a href="portfolio-refactored.html" class="btn btn-secondary">Try it free</a>
+                <a href="https://gumroad.com/YOUR_GUMROAD_LINK" class="btn btn-primary">Buy for €2</a>
+            </div>
+            <div class="price">€2</div>
+            <p style="color: #999; font-size: 14px;">One-time purchase. Unlimited PDFs.</p>
+        </div>
+
+        <footer>
+            <p>&copy; 2025. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
