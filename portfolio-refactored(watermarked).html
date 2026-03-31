@@ -1,1 +1,651 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio One-Pager Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=Inter:wght@400;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --cream: #f3f0e5;
+            --ink: #0a0a0a;
+            --accent: #ff3e00;
+            --accent-dark: #b32b00;
+            --layout-header-height: 180px;
+            --layout-bio-height: 360px;
+            --layout-skills-height: 110px;
+            --layout-footer-height: 60px;
+            --layout-rib-width: 70px;
+            --layout-padding-h: 60px;
+            --layout-padding-v: 20px;
+            --canvas-width: 595px;
+            --canvas-height: 842px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-rendering: geometricPrecision;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+            display: flex;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 360px;
+            padding: 40px;
+            background: #000;
+            border-right: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            overflow-y: auto;
+        }
+
+        .sidebar-title {
+            font-weight: 900;
+            color: var(--accent);
+        }
+
+        input, textarea {
+            background: #111;
+            border: 1px solid #222;
+            padding: 12px;
+            color: #fff;
+            font-size: 13px;
+            outline: none;
+            border-radius: 4px;
+            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            font-weight: 400;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--accent);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .export-btn {
+            margin-top: 10px;
+            padding: 20px;
+            background: var(--accent);
+            color: #fff;
+            font-weight: 900;
+            border: none;
+            cursor: pointer;
+            text-transform: uppercase;
+            border-radius: 4px;
+            transition: opacity 0.2s;
+        }
+
+        .export-btn:hover {
+            opacity: 0.9;
+        }
+
+        .export-btn:active {
+            transform: scale(0.98);
+        }
+
+        .viewport {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #080808;
+        }
+
+        #canvas {
+            width: var(--canvas-width);
+            height: var(--canvas-height);
+            background: var(--ink);
+            display: grid;
+            grid-template-columns: var(--layout-rib-width) 1fr;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .rib {
+            background: linear-gradient(
+                180deg,
+                var(--accent-dark) 0px,
+                var(--accent-dark) 130px,
+                var(--accent) 130px,
+                var(--accent) 100%
+            );
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: inset -8px 0 20px rgba(0,0,0,0.4), inset 4px 0 10px rgba(255,255,255,0.1);
+        }
+
+        .rib::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            mix-blend-mode: overlay;
+        }
+
+        .rib::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                rgba(0,0,0,0.1) 0%,
+                transparent 20%,
+                transparent 80%,
+                rgba(0,0,0,0.2) 100%
+            );
+            pointer-events: none;
+        }
+
+        .rib-company {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-90deg);
+            white-space: nowrap;
+            font-family: 'JetBrains Mono';
+            font-size: 9px;
+            color: rgba(255,255,255,0.85);
+            letter-spacing: 6px;
+            font-weight: 700;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .main {
+            background: var(--cream);
+            height: var(--canvas-height);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .header {
+            height: var(--layout-header-height);
+            padding: 60px var(--layout-padding-h) 25px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        #display-name {
+            font-family: 'Archivo', sans-serif;
+            line-height: 0.85;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            color: var(--ink);
+            white-space: pre-wrap;
+            word-break: keep-all;
+            font-weight: 900;
+            font-stretch: 125%;
+        }
+
+        #display-field {
+            font-family: 'JetBrains Mono';
+            font-size: 13px;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-top: 15px;
+            display: block;
+            font-weight: 700;
+        }
+
+        .divider {
+            width: 40px;
+            height: 2px;
+            background: var(--ink);
+            margin: 20px var(--layout-padding-h) 0;
+            flex-shrink: 0;
+        }
+
+        .body-content {
+            flex: 1;
+            padding: var(--layout-padding-v) var(--layout-padding-h) 40px;
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #bio-container {
+            height: var(--layout-bio-height);
+            border-left: 10px solid var(--ink);
+            padding-left: 30px;
+            padding-bottom: 15px;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        #bio-lead {
+            font-weight: 900;
+            color: var(--ink);
+            display: block;
+            line-height: 1.2;
+            margin-bottom: 8px;
+        }
+
+        #bio-body {
+            font-weight: 400;
+            color: #333;
+            line-height: 1.4;
+            display: block;
+        }
+
+        #skills-container {
+            height: var(--layout-skills-height);
+            display: flex;
+            align-items: flex-start;
+            padding-bottom: 10px;
+        }
+
+        .skill-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .skill-pill {
+            font-family: 'JetBrains Mono';
+            font-weight: 700;
+            background: var(--ink);
+            color: var(--cream);
+            padding: 5px 10px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .footer {
+            height: var(--layout-footer-height);
+            background: var(--ink);
+            color: var(--cream);
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            align-items: center;
+            justify-items: stretch;
+            padding: 8px var(--layout-padding-h);
+            font-family: 'JetBrains Mono';
+            font-size: 8px;
+            flex-shrink: 0;
+            row-gap: 2px;
+            column-gap: 12px;
+        }
+
+        #display-footer-email {
+            grid-column: 1;
+            grid-row: 1;
+            text-align: left;
+            justify-self: start;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        #display-footer-linkedin {
+            grid-column: 1;
+            grid-row: 2;
+            text-align: left;
+            justify-self: start;
+            white-space: pre-wrap;
+            word-break: break-word;
+            color: var(--cream);
+            text-decoration: none;
+        }
+
+        #display-footer-linkedin:hover {
+            text-decoration: underline;
+        }
+
+        #display-footer-phone {
+            grid-column: 2;
+            grid-row: 1;
+            text-align: right;
+            justify-self: end;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        #display-footer-location {
+            grid-column: 2;
+            grid-row: 2;
+            text-align: right;
+            justify-self: end;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="sidebar-title">PROFILE</div>
+        <input type="text" id="input-name" placeholder="NAME" aria-label="Full name" value="" maxlength="30" autocomplete="name">
+        <input type="text" id="input-field" placeholder="FIELD" aria-label="Professional field" value="" maxlength="30" autocomplete="off">
+        <input type="text" id="input-company" placeholder="COMPANY" aria-label="Company name" value="" maxlength="50" autocomplete="organization">
+        <input type="email" id="input-email" placeholder="EMAIL" aria-label="Email address" value="" maxlength="65" autocomplete="email">
+        <input type="tel" id="input-phone" placeholder="PHONE" aria-label="Phone number" value="" maxlength="30" autocomplete="tel">
+        <input type="text" id="input-location" placeholder="LOCATION" aria-label="Location" value="" maxlength="30" autocomplete="address-level1">
+        <input type="text" id="input-linkedin" placeholder="LINKEDIN" aria-label="LinkedIn URL" value="" maxlength="65">
+        <textarea id="input-bio" placeholder="PROFESSIONAL STATEMENT (comma-separated)" aria-label="Professional statement" rows="10" maxlength="600"></textarea>
+        <input type="text" id="input-skills" placeholder="SKILLS (comma-separated)" aria-label="Skills list" value="" maxlength="350">
+        <button class="export-btn" id="export-btn" aria-label="Export portfolio as PDF">EXPORT PDF</button>
+    </aside>
+
+    <main class="viewport">
+        <div id="canvas">
+            <div class="rib">
+                <div class="rib-company" id="display-company"></div>
+            </div>
+            <div class="main">
+                <header class="header" id="header-box">
+                    <div id="display-name"></div>
+                    <span id="display-field"></span>
+                </header>
+                <div class="divider"></div>
+                <div class="body-content">
+                    <section id="bio-container">
+                        <span id="bio-lead"></span>
+                        <span id="bio-body"></span>
+                    </section>
+                    <section id="skills-container">
+                        <div class="skill-list" id="display-skills"></div>
+                    </section>
+                </div>
+                <footer class="footer">
+                    <span id="display-footer-email"></span>
+                    <span id="display-footer-phone"></span>
+                    <a id="display-footer-linkedin" href=""></a>
+                    <span id="display-footer-location"></span>
+                </footer>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const config = {
+            name: { minSize: 10, maxSize: 47, minWidth: 120, maxHeight: 110 },
+            bio: { minSize: 4, baseSize: 15, maxSize: 50, step: 0.5, containerHeight: 360, leadOffset: 2 },
+            skills: { minSize: 6, baseSize: 9, step: 0.5 },
+            sizing: { maxAttempts: 100 }
+        };
+
+        const elements = {
+            inputs: {
+                name: document.getElementById('input-name'),
+                field: document.getElementById('input-field'),
+                company: document.getElementById('input-company'),
+                email: document.getElementById('input-email'),
+                phone: document.getElementById('input-phone'),
+                location: document.getElementById('input-location'),
+                linkedin: document.getElementById('input-linkedin'),
+                bio: document.getElementById('input-bio'),
+                skills: document.getElementById('input-skills'),
+            },
+            displays: {
+                name: document.getElementById('display-name'),
+                field: document.getElementById('display-field'),
+                company: document.getElementById('display-company'),
+                bioLead: document.getElementById('bio-lead'),
+                bioBody: document.getElementById('bio-body'),
+                skills: document.getElementById('display-skills'),
+                footerEmail: document.getElementById('display-footer-email'),
+                footerPhone: document.getElementById('display-footer-phone'),
+                footerLinkedin: document.getElementById('display-footer-linkedin'),
+                footerLocation: document.getElementById('display-footer-location'),
+            },
+            containers: {
+                header: document.getElementById('header-box'),
+                bio: document.getElementById('bio-container'),
+                skills: document.getElementById('skills-container'),
+            },
+            exportBtn: document.getElementById('export-btn'),
+        };
+
+        function splitBioText(text) {
+            if (!text) return ['', ''];
+            const sentences = text.split(/(?<=[.!?])\s+/);
+            const lead = sentences[0] || '';
+            const body = sentences.slice(1).join(' ').trim();
+            return [lead, body ? ' ' + body : ''];
+        }
+
+        function fitNameText() {
+            const nameEl = elements.displays.name;
+            const headerEl = elements.containers.header;
+
+            let size = config.name.minSize;
+            nameEl.style.fontSize = size + 'px';
+
+            while (
+                nameEl.scrollWidth <= (headerEl.clientWidth - config.name.minWidth) &&
+                nameEl.scrollHeight < config.name.maxHeight &&
+                size < config.name.maxSize
+            ) {
+                size++;
+                nameEl.style.fontSize = size + 'px';
+            }
+
+            nameEl.style.fontSize = (size - 1) + 'px';
+        }
+
+        function fitBioText() {
+            const bioLeadEl = elements.displays.bioLead;
+            const bioBodyEl = elements.displays.bioBody;
+            const bioContainerEl = elements.containers.bio;
+
+            const [lead, body] = splitBioText(elements.inputs.bio.value);
+
+            bioLeadEl.textContent = lead;
+            bioBodyEl.textContent = body;
+
+            if (!lead) return;
+
+            let size = config.bio.baseSize;
+            bioBodyEl.style.fontSize = size + 'px';
+            bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
+
+            let attempts = 0;
+            while (bioContainerEl.scrollHeight > config.bio.containerHeight && size > config.bio.minSize && attempts < config.sizing.maxAttempts) {
+                size -= config.bio.step;
+                bioBodyEl.style.fontSize = size + 'px';
+                bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
+                attempts++;
+            }
+
+            attempts = 0;
+            while (bioContainerEl.scrollHeight <= config.bio.containerHeight && size < config.bio.maxSize && attempts < config.sizing.maxAttempts) {
+                size += config.bio.step;
+                bioBodyEl.style.fontSize = size + 'px';
+                bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
+                attempts++;
+            }
+
+            bioBodyEl.style.fontSize = (size - config.bio.step) + 'px';
+            bioLeadEl.style.fontSize = (size + config.bio.leadOffset - config.bio.step) + 'px';
+        }
+
+        function fitSkillsText() {
+            const skillsListEl = elements.displays.skills;
+            const skillsContainerEl = elements.containers.skills;
+            const skillsInputEl = elements.inputs.skills;
+
+            skillsListEl.innerHTML = '';
+
+            const skillsText = skillsInputEl.value.trim();
+            if (skillsText) {
+                skillsText.split(',').forEach(skill => {
+                    const trimmed = skill.trim();
+                    if (trimmed) {
+                        const pill = document.createElement('span');
+                        pill.className = 'skill-pill';
+                        pill.textContent = trimmed.toUpperCase();
+                        skillsListEl.appendChild(pill);
+                    }
+                });
+            }
+
+            let size = config.skills.baseSize;
+            skillsListEl.style.fontSize = size + 'px';
+
+            let attempts = 0;
+            while (skillsListEl.scrollHeight > skillsContainerEl.clientHeight && size > config.skills.minSize && attempts < config.sizing.maxAttempts) {
+                size -= config.skills.step;
+                skillsListEl.style.fontSize = size + 'px';
+                attempts++;
+            }
+        }
+
+        function update() {
+            const nameInput = elements.inputs.name.value;
+
+            elements.displays.name.textContent = nameInput.toUpperCase() || '';
+            elements.displays.field.textContent = elements.inputs.field.value.toUpperCase() || '';
+            elements.displays.company.textContent = elements.inputs.company.value.toUpperCase() || '';
+
+            const emailVal = elements.inputs.email.value || '';
+            const phoneVal = elements.inputs.phone.value || '';
+            const linkedinVal = elements.inputs.linkedin.value || '';
+            const locationVal = elements.inputs.location.value || '';
+
+            elements.displays.footerEmail.textContent = emailVal;
+            elements.displays.footerPhone.textContent = phoneVal;
+            
+            elements.displays.footerLinkedin.textContent = linkedinVal;
+            elements.displays.footerLinkedin.href = linkedinVal ? (linkedinVal.startsWith('http') ? linkedinVal : `https://${linkedinVal}`) : '';
+            elements.displays.footerLinkedin.target = '_blank';
+            elements.displays.footerLinkedin.rel = 'noopener noreferrer';
+            
+            elements.displays.footerLocation.textContent = locationVal;
+
+            fitNameText();
+            fitBioText();
+            fitSkillsText();
+        }
+
+        let debounceTimer;
+        function debouncedUpdate() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(update, 100);
+        }
+
+        function generatePDF() {
+            const name = elements.inputs.name.value?.trim() || 'User';
+            if (!name || !elements.inputs.field.value?.trim()) {
+                alert('Please fill in at least Name and Field');
+                return;
+            }
+
+            const fileName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
+            const canvas = document.getElementById('canvas');
+            
+            if (!canvas) {
+                console.error('Canvas element not found');
+                return;
+            }
+
+            try {
+                const element = canvas;
+                const opt = {
+                    margin: 0,
+                    filename: fileName,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { scale: 3, useCORS: true, logging: false },
+                    jsPDF: { unit: 'px', format: [595, 842], orientation: 'portrait' }
+                };
+                
+                html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf) {
+                    const pageCount = pdf.internal.getNumberOfPages();
+                    const fontSize = 250;
+                    const text = 'DEMO';
+                    const pageWidth = pdf.internal.pageSize.getWidth();
+                    const pageHeight = pdf.internal.pageSize.getHeight();
+                    
+                    for (let i = 1; i <= pageCount; i++) {
+                        pdf.setPage(i);
+                        
+                        pdf.saveGraphicsState();
+                        pdf.setGState(new pdf.GState({ opacity: 0.4 }));
+                        pdf.setFont('helvetica', 'bold');
+                        pdf.setFontSize(fontSize);
+                        pdf.setTextColor(150, 150, 150);
+                        
+                        const textWidth = pdf.getTextWidth(text);
+                        const centerX = (pageWidth - textWidth) / 0.4;
+                        const centerY = pageHeight / 3;
+                        
+                        pdf.text(text, centerX, centerY, { angle: -45 });
+                        
+                        pdf.restoreGraphicsState();
+                    }
+                    
+                    pdf.save();
+                }).catch(function(error) {
+                    console.error('PDF generation failed:', error);
+                    alert('Failed to generate PDF. Please try again.');
+                });
+            } catch (error) {
+                console.error('PDF generation failed:', error);
+                alert('Failed to generate PDF. Please try again.');
+            }
+        }
+
+        function initializeApp() {
+            const requiredElements = [
+                'input-name', 'input-field', 'input-bio', 'input-skills',
+                'display-name', 'display-field', 'header-box', 'bio-container',
+                'skills-container', 'export-btn', 'canvas'
+            ];
+
+            for (const id of requiredElements) {
+                if (!document.getElementById(id)) {
+                    console.error(`Required element not found: #${id}`);
+                    return false;
+                }
+            }
+
+            Object.values(elements.inputs).forEach(input => {
+                input.addEventListener('input', debouncedUpdate);
+            });
+
+            elements.exportBtn.addEventListener('click', generatePDF);
+            return true;
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                if (initializeApp()) {
+                    update();
+                }
+            });
+        } else {
+            if (initializeApp()) {
+                update();
+            }
+        }
+    </script>
+</body>
+</html>
