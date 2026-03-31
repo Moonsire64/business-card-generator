@@ -119,6 +119,20 @@
             position: relative;
         }
 
+        .watermark {
+            position: absolute;
+            top: 45%;
+            left: 60%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 180px;
+            font-weight: bold;
+            color: rgba(0, 0, 0, 0.11);
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 1;
+            font-family: 'Helvetica', sans-serif;
+        }
+
         .rib {
             background: linear-gradient(
                 180deg,
@@ -342,15 +356,15 @@
 <body>
     <aside class="sidebar">
         <div class="sidebar-title">PROFILE</div>
-        <input type="text" id="input-name" placeholder="NAME" aria-label="Full name" value="" maxlength="30" autocomplete="name">
-        <input type="text" id="input-field" placeholder="FIELD" aria-label="Professional field" value="" maxlength="30" autocomplete="off">
-        <input type="text" id="input-company" placeholder="COMPANY" aria-label="Company name" value="" maxlength="50" autocomplete="organization">
-        <input type="email" id="input-email" placeholder="EMAIL" aria-label="Email address" value="" maxlength="65" autocomplete="email">
-        <input type="tel" id="input-phone" placeholder="PHONE" aria-label="Phone number" value="" maxlength="30" autocomplete="tel">
-        <input type="text" id="input-location" placeholder="LOCATION" aria-label="Location" value="" maxlength="30" autocomplete="address-level1">
-        <input type="text" id="input-linkedin" placeholder="LINKEDIN" aria-label="LinkedIn URL" value="" maxlength="65">
-        <textarea id="input-bio" placeholder="PROFESSIONAL STATEMENT (comma-separated)" aria-label="Professional statement" rows="10" maxlength="600"></textarea>
-        <input type="text" id="input-skills" placeholder="SKILLS (comma-separated)" aria-label="Skills list" value="" maxlength="350">
+        <input type="text" id="input-name" placeholder="NAME" aria-label="Full name" value="Kyle McCarthy" maxlength="30" autocomplete="name">
+        <input type="text" id="input-field" placeholder="FIELD" aria-label="Professional field" value="Microbiology" maxlength="30" autocomplete="off">
+        <input type="text" id="input-company" placeholder="COMPANY" aria-label="Company name" value="Automation Solutions" maxlength="50" autocomplete="organization">
+        <input type="email" id="input-email" placeholder="EMAIL" aria-label="Email address" value="kyle@example.com" maxlength="65" autocomplete="email">
+        <input type="tel" id="input-phone" placeholder="PHONE" aria-label="Phone number" value="+1 (555) 123-4567" maxlength="30" autocomplete="tel">
+        <input type="text" id="input-location" placeholder="LOCATION" aria-label="Location" value="New York, NY" maxlength="30" autocomplete="address-level1">
+        <input type="text" id="input-linkedin" placeholder="LINKEDIN" aria-label="LinkedIn URL" value="linkedin.com/in/kylemccarthy" maxlength="65">
+        <textarea id="input-bio" placeholder="PROFESSIONAL STATEMENT (comma-separated)" aria-label="Professional statement" rows="10" maxlength="600">Resourceful and detail-oriented RPA Developer with a background in microbiology and strong expertise in UiPath automation, process analysis, and intelligent automation delivery. Proven ability to work independently or in teams, with excellent communication, leadership, and problem-solving abilities. Brings scientific discipline and compliance experience from a microbiology background, now applied to automation delivery.</textarea>
+        <input type="text" id="input-skills" placeholder="SKILLS (comma-separated)" aria-label="Skills list" value="QC analysis, agars, broths, diluents, enrichment media, PCR, membrane filtration, MALDI-TOF, pathogenic bacteria identification, pharmaceutical-grade compliance" maxlength="350">
         <button class="export-btn" id="export-btn" aria-label="Export portfolio as PDF">EXPORT PDF</button>
     </aside>
 
@@ -567,27 +581,12 @@
             }
 
             try {
-                const element = canvas;
-                const opt = {
+                html2pdf().set({
                     margin: 0,
                     filename: fileName,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { scale: 3, useCORS: true, logging: false },
+                    html2canvas: { scale: 3, useCORS: true },
                     jsPDF: { unit: 'px', format: [595, 842], orientation: 'portrait' }
-                };
-                
-                html2pdf().set(opt).from(element).toPdf().get('pdf').then(function(pdf) {
-                    const pageCount = pdf.internal.getNumberOfPages();
-                    const fontSize = 250;
-                    const text = 'DEMO';
-                    const pageWidth = pdf.internal.pageSize.getWidth();
-                    const pageHeight = pdf.internal.pageSize.getHeight();
-                    pdf.save();
-                    
-                }).catch(function(error) {
-                    console.error('PDF generation failed:', error);
-                    alert('Failed to generate PDF. Please try again.');
-                });
+                }).from(canvas).save();
             } catch (error) {
                 console.error('PDF generation failed:', error);
                 alert('Failed to generate PDF. Please try again.');
