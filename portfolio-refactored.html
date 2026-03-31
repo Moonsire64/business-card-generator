@@ -582,25 +582,6 @@
                     const text = 'DEMO';
                     const pageWidth = pdf.internal.pageSize.getWidth();
                     const pageHeight = pdf.internal.pageSize.getHeight();
-                    
-                    for (let i = 1; i <= pageCount; i++) {
-                        pdf.setPage(i);
-                        
-                        pdf.saveGraphicsState();
-                        pdf.setGState(new pdf.GState({ opacity: 0.4 }));
-                        pdf.setFont('helvetica', 'bold');
-                        pdf.setFontSize(fontSize);
-                        pdf.setTextColor(150, 150, 150);
-                        
-                        const textWidth = pdf.getTextWidth(text);
-                        const centerX = (pageWidth - textWidth) / 0.4;
-                        const centerY = pageHeight / 3;
-                        
-                        pdf.text(text, centerX, centerY, { angle: -45 });
-                        
-                        pdf.restoreGraphicsState();
-                    }
-                    
                     pdf.save();
                 }).catch(function(error) {
                     console.error('PDF generation failed:', error);
