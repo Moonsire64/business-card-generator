@@ -498,7 +498,6 @@
         function scaleCanvas() {
             const isMobile = window.innerWidth <= 768;
             if (!isMobile) {
-                // Desktop: no transform; scaler just wraps canvas naturally
                 elements.canvas.style.transform = '';
                 elements.canvas.style.transformOrigin = '';
                 elements.scaler.style.width = '';
@@ -506,17 +505,18 @@
                 return;
             }
 
-            // Available width inside the viewport padding (10px each side)
-            const availableW = window.innerWidth - 20;
+            // Fill the full screen width minus a small margin
+            const availableW = window.innerWidth - 16;
+            // Never scale UP beyond 1:1, only scale down if needed
             const scale = Math.min(1, availableW / CANVAS_W);
 
             elements.canvas.style.transformOrigin = 'top left';
             elements.canvas.style.transform = `scale(${scale})`;
 
-            // Size the scaler wrapper to the post-scale footprint so
-            // the page scrolls correctly and nothing overlaps
-            elements.scaler.style.width  = (CANVAS_W * scale) + 'px';
-            elements.scaler.style.height = (CANVAS_H * scale) + 'px';
+            // The scaler wrapper must occupy the post-scale footprint
+            // so layout doesn't collapse around the transformed element
+            elements.scaler.style.width  = Math.round(CANVAS_W * scale) + 'px';
+            elements.scaler.style.height = Math.round(CANVAS_H * scale) + 'px';
         }
 
         window.addEventListener('resize', scaleCanvas);
@@ -697,20 +697,13 @@
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF({
                     unit: 'px',
-                    // Use the actual pixel dimensions from the captured canvas
-                    // to eliminate any rounding gap at the bottom
-                    format: [captured.width / 2, captured.height / 2],
+                    format: [CANVAS_W, CANVAS_H],
                     orientation: 'portrait',
                     hotfixes: ['px_scaling'],
                 });
 
-                pdf.addImage(
-                    imgData,
-                    'PNG',
-                    0, 0,
-                    captured.width / 2,
-                    captured.height / 2,
-                );
+                // Always fill the full page at true canvas dimensions
+                pdf.addImage(imgData, 'PNG', 0, 0, CANVAS_W, CANVAS_H);
 
                 pdf.save(fileName);
 
