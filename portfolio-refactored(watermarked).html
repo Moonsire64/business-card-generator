@@ -356,7 +356,7 @@
             word-break: break-word;
         }
 
-        /* Mobile: allow horizontal scroll, keep canvas at exact size */
+        /* Mobile: horizontal scroll to see full canvas */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -616,15 +616,29 @@
             exportBtn.disabled = true;
             
             try {
-                // Use html2canvas directly with jspdf for better control
+                // Force canvas to exact dimensions and remove any margins/padding issues
+                const originalWidth = canvas.style.width;
+                const originalHeight = canvas.style.height;
+                canvas.style.width = '595px';
+                canvas.style.height = '842px';
+                
+                // Wait for reflow
+                await new Promise(resolve => setTimeout(resolve, 50));
+                
                 const capturedCanvas = await html2canvas(canvas, {
                     scale: 2,
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#f3f0e5',
                     windowWidth: 595,
-                    windowHeight: 842
+                    windowHeight: 842,
+                    width: 595,
+                    height: 842
                 });
+                
+                // Restore original styles
+                canvas.style.width = originalWidth;
+                canvas.style.height = originalHeight;
                 
                 const imgData = capturedCanvas.toDataURL('image/jpeg', 1.0);
                 const { jsPDF } = window.jspdf;
@@ -634,7 +648,8 @@
                     orientation: 'portrait'
                 });
                 
-                pdf.addImage(imgData, 'JPEG', 0, 0, 595, 842);
+                // Add image at exact dimensions - no white line at bottom
+                pdf.addImage(imgData, 'JPEG', 0, 0, 595, 842, undefined, 'FAST');
                 pdf.save(fileName);
                 
             } catch (error) {
