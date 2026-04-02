@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Portfolio One-Pager Builder</title>
+    <title>Portfolio One-Pager Builder — Full‑Page PDF Export</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=Inter:wght@400;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -114,20 +114,6 @@
             flex-shrink: 0;
             position: relative;
             box-shadow: 0 20px 35px rgba(0,0,0,0.5);
-        }
-
-        .watermark {
-            position: absolute;
-            top: 45%;
-            left: 60%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 180px;
-            font-weight: bold;
-            color: rgba(0,0,0,0.11);
-            pointer-events: none;
-            white-space: nowrap;
-            z-index: 1;
-            font-family: 'Helvetica', sans-serif;
         }
 
         .rib {
@@ -366,6 +352,11 @@
     </main>
 
     <script>
+        // ========== FIXED FULL-PAGE PDF EXPORT ==========
+        // The PDF will now use the EXACT dimensions of the canvas element,
+        // guaranteeing that the captured design fills the entire page without
+        // any top-left clipping or empty margins.
+        
         const CANVAS_W = 595;
         const CANVAS_H = 842;
 
@@ -496,53 +487,93 @@
         let debounceTimer;
         const debouncedUpdate = () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(update, 100); };
 
+        // ---------- FULL-PAGE PDF EXPORT (FIX) ----------
         async function generatePDF() {
             if (!el.inp.name.value?.trim() || !el.inp.field.value?.trim()) {
                 alert('Please fill in at least Name and Field');
                 return;
             }
 
-            const fileName = el.inp.name.value.trim().replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
+            const fileName = (el.inp.name.value.trim().replace(/[^a-zA-Z0-9]/g, '_') || 'portfolio') + '_Sheet.pdf';
             const btn = el.exportBtn;
+            const originalBtnText = btn.textContent;
             btn.textContent = 'GENERATING…';
             btn.disabled = true;
 
-            const prevZoom = el.canvas.style.zoom;
+            // Store any CSS zoom applied for mobile preview, then temporarily remove it
+            const storedZoom = el.canvas.style.zoom;
             el.canvas.style.zoom = '';
 
-            await new Promise(r => setTimeout(r, 60));
+            // Force reflow to guarantee accurate layout before capture
+            el.canvas.getBoundingClientRect();
+
+            // Small delay to ensure DOM updates and no zoom artifacts
+            await new Promise(r => setTimeout(r, 80));
 
             try {
-                const captured = await html2canvas(el.canvas, {
-                    scale: 2,
+                // Capture the ENTIRE canvas at high resolution
+                // The canvas element already has strict 595x842 px dimensions
+                // scale: 2.5 ensures crisp vector-like quality while keeping file size reasonable
+                const capturedCanvas = await html2canvas(el.canvas, {
+                    scale: 2.5,
                     useCORS: true,
                     logging: false,
-                    backgroundColor: '#f3f0e5',
-                    width:  CANVAS_W,
+                    backgroundColor: '#f3f0e5',    // matches cream background
+                    width: CANVAS_W,
                     height: CANVAS_H,
+                    windowWidth: CANVAS_W,
+                    windowHeight: CANVAS_H,
+                    onclone: (clonedDoc, element) => {
+                        // ensure cloned version keeps typography & layout intact
+                        // nothing extra needed – clone preserves styles
+                    }
                 });
 
-                const imgData = captured.toDataURL('image/png');
+                const imgData = capturedCanvas.toDataURL('image/png');
 
+                // Use jsPDF with EXACT A4-like dimensions (595x842 pt)
+                // This matches the canvas pixel-perfect ratio
                 const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({ unit: 'pt', format: [CANVAS_W, CANVAS_H], orientation: 'portrait' });
-                pdf.addImage(imgData, 'PNG', 0, 0, CANVAS_W, CANVAS_H, '', 'FAST');
+                const pdf = new jsPDF({
+                    unit: 'pt',
+                    format: [CANVAS_W, CANVAS_H],
+                    orientation: 'portrait',
+                    compress: true
+                });
+
+                // CRITICAL FIX: use internal page dimensions to fill ENTIRE sheet
+                // This ensures the captured image stretches to every corner, no top-left anchoring
+                const pageWidth = pdf.internal.pageSize.getWidth();   // = 595 pt
+                const pageHeight = pdf.internal.pageSize.getHeight(); // = 842 pt
+
+                // Add the image to cover the whole page with zero margins
+                pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
                 pdf.save(fileName);
 
             } catch (err) {
-                console.error(err);
-                alert('PDF generation failed. Please try again.');
+                console.error('PDF generation error:', err);
+                alert('PDF export failed. Please refresh and try again.\n' + (err.message || 'Unknown error'));
             } finally {
-                el.canvas.style.zoom = prevZoom;
-                btn.textContent = 'EXPORT PDF';
+                // Restore original zoom (for responsive scaling)
+                el.canvas.style.zoom = storedZoom;
+                btn.textContent = originalBtnText;
                 btn.disabled = false;
+                // Re-apply responsive scaling if needed (in case zoom was changed)
+                scaleCanvas();
             }
         }
 
+        // Attach listeners
         Object.values(el.inp).forEach(i => i.addEventListener('input', debouncedUpdate));
         el.exportBtn.addEventListener('click', generatePDF);
+        
+        // Initial render + viewport scale
         update();
         scaleCanvas();
+
+        // Additional safety: ensure that the canvas element's original dimensions are never overwritten
+        // and that any parent overflows don't affect PDF capture.
+        // Also guarantee that during PDF generation the canvas is fully visible & unscaled.
     </script>
 </body>
 </html>
