@@ -396,14 +396,15 @@
 
         function scaleCanvas() {
             if (window.innerWidth > 768) {
-                el.canvas.style.zoom = '';
+                el.canvas.style.transform = '';
+                el.canvas.style.transformOrigin = '';
                 return;
             }
             const viewport = el.canvas.parentElement;
-            el.canvas.style.zoom = '';
             const available = viewport.getBoundingClientRect().width;
-            const zoom = Math.min(1, Math.floor((available / CANVAS_W) * 1000) / 1000) * 0.98;
-            el.canvas.style.zoom = zoom;
+            const scale = Math.min(1, (available / CANVAS_W) * 0.98);
+            el.canvas.style.transform = `scale(${scale})`;
+            el.canvas.style.transformOrigin = 'top left';
         }
 
         window.addEventListener('resize', scaleCanvas);
@@ -481,7 +482,7 @@
         let debounceTimer;
         const debouncedUpdate = () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(update, 100); };
 
-        // ========== FIXED PDF EXPORT – FULL PAGE FILL ==========
+        // ========== FIXED: FULL-PAGE PDF EXPORT ==========
         async function generatePDF() {
             if (!el.inp.name.value?.trim() || !el.inp.field.value?.trim()) {
                 alert('Please fill in at least Name and Field');
@@ -494,44 +495,31 @@
             btn.textContent = 'GENERATING…';
             btn.disabled = true;
 
-            // Store any zoom applied for mobile preview and remove it temporarily
-            const storedZoom = el.canvas.style.zoom;
-            el.canvas.style.zoom = '';
-            // Also remove any potential inline transforms or margins that could affect capture
-            const originalMargin = el.canvas.style.margin;
-            const originalBoxShadow = el.canvas.style.boxShadow;
-            el.canvas.style.margin = '0';
-            el.canvas.style.boxShadow = 'none';
+            // Store and remove any CSS transforms (mobile scaling)
+            const storedTransform = el.canvas.style.transform;
+            const storedTransformOrigin = el.canvas.style.transformOrigin;
+            el.canvas.style.transform = 'none';
+            el.canvas.style.transformOrigin = '';
 
-            // Force reflow to ensure accurate dimensions
+            // Force reflow
             el.canvas.getBoundingClientRect();
             await new Promise(r => setTimeout(r, 60));
 
             try {
-                // Get exact rendered dimensions (should be 595x842)
-                const targetWidth = el.canvas.offsetWidth;
-                const targetHeight = el.canvas.offsetHeight;
-
-                // Capture at a high scale for crispness, but we'll later scale to fill PDF page
+                // Capture at high resolution
                 const capturedCanvas = await html2canvas(el.canvas, {
                     scale: 3,
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#f3f0e5',
-                    width: targetWidth,
-                    height: targetHeight,
-                    windowWidth: targetWidth,
-                    windowHeight: targetHeight,
+                    width: CANVAS_W,
+                    height: CANVAS_H,
                 });
 
                 const imgData = capturedCanvas.toDataURL('image/png');
                 const { jsPDF } = window.jspdf;
 
-                // Create PDF with standard A4-like dimensions in points (same as original canvas target)
-                // The canvas CSS size (595x842px) is designed for A4 portrait at 72 DPI.
-                // But since CSS pixels are 96 DPI, the physical size is smaller.
-                // To fill the entire PDF page, we explicitly set the PDF page size to the exact dimensions
-                // that match the canvas design proportions, then stretch the image to fit.
+                // Create PDF with exact dimensions in points
                 const pdf = new jsPDF({
                     unit: 'pt',
                     format: [CANVAS_W, CANVAS_H],
@@ -539,12 +527,18 @@
                     compress: true
                 });
 
-                const pageWidth = pdf.internal.pageSize.getWidth();   // = 595 pt
-                const pageHeight = pdf.internal.pageSize.getHeight(); // = 842 pt
+                // Get page dimensions (595 x 842 points)
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
 
-                // CRITICAL FIX: Add the image and force it to stretch exactly to the page dimensions.
-                // The image's intrinsic pixel dimensions are larger (scale=3), but we tell jsPDF
-                // to draw it at the exact page width/height in points. This fills the whole sheet.
+                // Get image dimensions in pixels
+                const imgWidth = capturedCanvas.width;
+                const imgHeight = capturedCanvas.height;
+
+                // Calculate scale factors to fill the page completely
+                // We need to stretch the image to exactly pageWidth x pageHeight
+                // The image's native dimensions are larger (scale=3 => 1785x2526), but we force it to page size
+                // This ensures the image fills the ENTIRE PDF page with no margins
                 pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
                 pdf.save(fileName);
 
@@ -552,13 +546,12 @@
                 console.error('PDF generation error:', err);
                 alert('PDF export failed. Please refresh and try again.\n' + (err.message || 'Unknown error'));
             } finally {
-                // Restore original styling
-                el.canvas.style.zoom = storedZoom;
-                el.canvas.style.margin = originalMargin;
-                el.canvas.style.boxShadow = originalBoxShadow;
+                // Restore original transform
+                el.canvas.style.transform = storedTransform;
+                el.canvas.style.transformOrigin = storedTransformOrigin;
                 btn.textContent = originalText;
                 btn.disabled = false;
-                scaleCanvas(); // re-apply responsive zoom if needed
+                scaleCanvas();
             }
         }
 
