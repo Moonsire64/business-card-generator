@@ -316,7 +316,7 @@
             .viewport {
                 /* CSS zoom handles its own layout, so we just need to not clip */
                 overflow: visible;
-                padding: 16px 8px;
+                padding: 16px 0;
                 justify-content: flex-start;
                 align-items: flex-start;
             }
@@ -421,8 +421,12 @@
                 el.canvas.style.zoom = '';
                 return;
             }
-            // Fill screen width minus 16px gutter, never scale up
-            const zoom = Math.min(1, (window.innerWidth - 16) / CANVAS_W);
+            // Measure the actual available width from the viewport container,
+            // which already accounts for padding, scrollbars, etc.
+            const viewport = el.canvas.parentElement;
+            el.canvas.style.zoom = ''; // reset first so it doesn't skew the measurement
+            const available = viewport.getBoundingClientRect().width;
+            const zoom = Math.min(1, available / CANVAS_W);
             el.canvas.style.zoom = zoom;
         }
 
