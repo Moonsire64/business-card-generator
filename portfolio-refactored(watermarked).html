@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Portfolio One-Pager Builder | Mobile Fixed</title>
+    <title>Portfolio Builder | One-Pager</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=Inter:wght@400;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
@@ -14,7 +14,6 @@
             text-rendering: geometricPrecision;
         }
 
-        /* Desktop-first base variables */
         :root {
             --cream: #f3f0e5;
             --ink: #0a0a0a;
@@ -33,10 +32,10 @@
 
         html, body {
             height: 100%;
-            background: #000;
         }
 
         body {
+            background: #000;
             color: #fff;
             font-family: 'Inter', sans-serif;
             display: flex;
@@ -44,7 +43,6 @@
             height: 100vh;
         }
 
-        /* SIDEBAR (desktop + mobile adapted) */
         .sidebar {
             width: 360px;
             padding: 40px;
@@ -54,13 +52,12 @@
             flex-direction: column;
             gap: 15px;
             overflow-y: auto;
-            flex-shrink: 0;
         }
 
         .sidebar-title {
             font-weight: 900;
             color: var(--accent);
-            font-size: 14px;
+            font-size: 13px;
             letter-spacing: 1px;
         }
 
@@ -72,9 +69,8 @@
             font-size: 13px;
             outline: none;
             border-radius: 4px;
-            font-family: 'Inter', monospace;
+            font-family: 'Inter', sans-serif;
             font-weight: 400;
-            width: 100%;
         }
 
         input:focus, textarea:focus {
@@ -96,13 +92,17 @@
             cursor: pointer;
             text-transform: uppercase;
             border-radius: 4px;
-            transition: 0.2s;
-            font-size: 16px;
+            transition: opacity 0.2s;
         }
 
-        .export-btn:active { transform: scale(0.98); }
+        .export-btn:hover {
+            opacity: 0.9;
+        }
 
-        /* VIEWPORT: central preview area */
+        .export-btn:active {
+            transform: scale(0.98);
+        }
+
         .viewport {
             flex: 1;
             display: flex;
@@ -113,7 +113,6 @@
             padding: 20px;
         }
 
-        /* CANVAS: exact A4 proportions for PDF generation */
         #canvas {
             width: var(--canvas-width);
             height: var(--canvas-height);
@@ -122,10 +121,9 @@
             grid-template-columns: var(--layout-rib-width) 1fr;
             flex-shrink: 0;
             position: relative;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* watermark only visible on screen preview but not harming pdf */
         .watermark {
             position: absolute;
             top: 45%;
@@ -141,7 +139,13 @@
         }
 
         .rib {
-            background: linear-gradient(180deg, var(--accent-dark) 0px, var(--accent-dark) 130px, var(--accent) 130px, var(--accent) 100%);
+            background: linear-gradient(
+                180deg,
+                var(--accent-dark) 0px,
+                var(--accent-dark) 130px,
+                var(--accent) 130px,
+                var(--accent) 100%
+            );
             position: relative;
             display: flex;
             align-items: center;
@@ -157,6 +161,23 @@
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
             pointer-events: none;
             mix-blend-mode: overlay;
+        }
+
+        .rib::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                rgba(0,0,0,0.1) 0%,
+                transparent 20%,
+                transparent 80%,
+                rgba(0,0,0,0.2) 100%
+            );
+            pointer-events: none;
         }
 
         .rib-company {
@@ -175,7 +196,7 @@
 
         .main {
             background: var(--cream);
-            height: 100%;
+            height: var(--canvas-height);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -196,9 +217,10 @@
             letter-spacing: -0.02em;
             text-transform: uppercase;
             color: var(--ink);
+            white-space: pre-wrap;
+            word-break: keep-all;
             font-weight: 900;
             font-stretch: 125%;
-            word-break: break-word;
         }
 
         #display-field {
@@ -274,7 +296,6 @@
             padding: 5px 10px;
             text-transform: uppercase;
             white-space: nowrap;
-            font-size: 9px;
         }
 
         .footer {
@@ -294,23 +315,54 @@
             column-gap: 12px;
         }
 
-        #display-footer-email, #display-footer-linkedin, #display-footer-phone, #display-footer-location {
+        #display-footer-email {
+            grid-column: 1;
+            grid-row: 1;
+            text-align: left;
+            justify-self: start;
             white-space: pre-wrap;
             word-break: break-word;
         }
 
         #display-footer-linkedin {
+            grid-column: 1;
+            grid-row: 2;
+            text-align: left;
+            justify-self: start;
+            white-space: pre-wrap;
+            word-break: break-word;
             color: var(--cream);
             text-decoration: none;
         }
 
-        /* --- CRITICAL MOBILE FIX: separate layout that does NOT shrink canvas visually, but handles overflow & ensures PDF capture --- */
-        @media (max-width: 780px) {
+        #display-footer-linkedin:hover {
+            text-decoration: underline;
+        }
+
+        #display-footer-phone {
+            grid-column: 2;
+            grid-row: 1;
+            text-align: right;
+            justify-self: end;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        #display-footer-location {
+            grid-column: 2;
+            grid-row: 2;
+            text-align: right;
+            justify-self: end;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* MOBILE FIXES: preview container scales properly, canvas fits within viewport */
+        @media (max-width: 768px) {
             body {
                 flex-direction: column;
                 height: auto;
-                overflow-y: auto;
-                overflow-x: hidden;
+                overflow: auto;
             }
 
             .sidebar {
@@ -323,34 +375,26 @@
             }
 
             .viewport {
-                flex: none;
-                align-items: center !important;
-                justify-content: center !important;
-                background: #080808;
-                padding: 30px 15px !important;
-                min-height: auto;
+                padding: 20px;
                 overflow-x: auto;
                 overflow-y: visible;
+                min-height: auto;
             }
 
-            /* Preserve original canvas dimensions (595x842) but allow horizontal scroll on mobile if needed */
+            /* Canvas stays exactly 595x842, but container scrolls horizontally if needed */
             #canvas {
-                width: 595px !important;
-                height: 842px !important;
-                min-width: 595px;
-                min-height: 842px;
+                width: 595px;
+                height: 842px;
                 margin: 0 auto;
                 transform: scale(1);
-                box-shadow: 0 12px 30px rgba(0,0,0,0.5);
-                /* Force exact A4 sizing for HTML2PDF to render properly */
+                box-shadow: 0 5px 20px rgba(0,0,0,0.4);
             }
 
-            /* Ensure main internal layout uses fixed pixel values from root variables */
-            .main, .header, .body-content, .footer {
-                width: 100%;
+            /* Internal layout stays intact */
+            .main {
+                height: 842px;
             }
-
-            /* Adjust internal spacing for readability but preserve exact heights as desktop for PDF integrity */
+            
             .header {
                 padding: 60px var(--layout-padding-h) 25px !important;
                 height: var(--layout-header-height) !important;
@@ -368,7 +412,6 @@
             #bio-container {
                 height: var(--layout-bio-height) !important;
                 margin-bottom: 40px !important;
-                overflow: hidden !important;
             }
 
             #skills-container {
@@ -378,61 +421,33 @@
             .footer {
                 height: var(--layout-footer-height) !important;
                 padding: 8px var(--layout-padding-h) !important;
-                grid-template-columns: 1fr 1fr !important;
-            }
-
-            .watermark {
-                display: block !important; /* keep watermark but doesn't affect PDF generation */
-            }
-
-            /* Improve text readability on mobile but keep font sizes adaptive */
-            #display-name {
-                font-size: calc(28px + 2vw);
-                max-font-size: 47px;
             }
         }
 
-        /* extra small devices: allow scrolling, but still preserve canvas dimensions */
+        /* Small devices: ensure horizontal scroll is comfortable */
         @media (max-width: 640px) {
             .viewport {
-                padding: 20px 10px !important;
-                justify-content: center;
+                padding: 15px;
             }
             #canvas {
-                width: 595px !important;
-                height: 842px !important;
-                transform: scale(0.98);
-                transform-origin: center;
-            }
-        }
-
-        /* desktop re-iteration: ensures nothing broken */
-        @media (min-width: 781px) {
-            .viewport {
-                overflow: visible;
-            }
-            #canvas {
-                width: var(--canvas-width);
-                height: var(--canvas-height);
-                transform: none;
+                margin: 0 auto;
             }
         }
     </style>
 </head>
 <body>
     <aside class="sidebar">
-        <div class="sidebar-title">✧ PROFILE EDITOR</div>
-        <input type="text" id="input-name" placeholder="FULL NAME" aria-label="Full name" value="MAYA RIVERA" maxlength="40" autocomplete="name">
-        <input type="text" id="input-field" placeholder="FIELD / ROLE" aria-label="Professional field" value="CREATIVE TECHNOLOGIST" maxlength="40" autocomplete="off">
-        <input type="text" id="input-company" placeholder="COMPANY / BRAND" aria-label="Company name" value="NOVA STUDIO" maxlength="50" autocomplete="organization">
-        <input type="email" id="input-email" placeholder="EMAIL" aria-label="Email address" value="hello@maya.design" maxlength="65" autocomplete="email">
-        <input type="tel" id="input-phone" placeholder="PHONE" aria-label="Phone number" value="+1 (212) 555 0987" maxlength="30" autocomplete="tel">
-        <input type="text" id="input-location" placeholder="LOCATION" aria-label="Location" value="NEW YORK / REMOTE" maxlength="30" autocomplete="address-level1">
-        <input type="text" id="input-linkedin" placeholder="LINKEDIN URL" aria-label="LinkedIn URL" value="linkedin.com/in/mayarivera" maxlength="65">
-        <textarea id="input-bio" placeholder="PROFESSIONAL STATEMENT (First sentence becomes bold lead)" aria-label="Professional statement" rows="6" maxlength="700">I build immersive digital experiences that blur the line between art and code. With over 8 years of experience in interactive design, WebGL, and creative direction, I lead projects that demand both technical precision and conceptual boldness. My work has been featured in international exhibitions and commercial campaigns for top lifestyle brands.</textarea>
-        <input type="text" id="input-skills" placeholder="SKILLS (comma separated)" aria-label="Skills list" value="WebGL, Three.js, Creative Coding, UI/UX, React, GSAP, Brand Strategy, Framer" maxlength="350">
-        <button class="export-btn" id="export-btn" aria-label="Export portfolio as PDF">⚡ EXPORT PDF ⚡</button>
-        <div style="font-size: 11px; color: #555; text-align: center; margin-top: 10px;">Preview fits A4 — PDF export preserves layout</div>
+        <div class="sidebar-title">PROFILE</div>
+        <input type="text" id="input-name" placeholder="NAME" aria-label="Full name" value="" maxlength="30" autocomplete="name">
+        <input type="text" id="input-field" placeholder="FIELD" aria-label="Professional field" value="" maxlength="30" autocomplete="off">
+        <input type="text" id="input-company" placeholder="COMPANY" aria-label="Company name" value="" maxlength="50" autocomplete="organization">
+        <input type="email" id="input-email" placeholder="EMAIL" aria-label="Email address" value="" maxlength="65" autocomplete="email">
+        <input type="tel" id="input-phone" placeholder="PHONE" aria-label="Phone number" value="" maxlength="30" autocomplete="tel">
+        <input type="text" id="input-location" placeholder="LOCATION" aria-label="Location" value="" maxlength="30" autocomplete="address-level1">
+        <input type="text" id="input-linkedin" placeholder="LINKEDIN" aria-label="LinkedIn URL" value="" maxlength="65">
+        <textarea id="input-bio" placeholder="PROFESSIONAL STATEMENT" aria-label="Professional statement" rows="10" maxlength="600"></textarea>
+        <input type="text" id="input-skills" placeholder="SKILLS (comma-separated)" aria-label="Skills list" value="" maxlength="350">
+        <button class="export-btn" id="export-btn" aria-label="Export portfolio as PDF">EXPORT PDF</button>
     </aside>
 
     <main class="viewport">
@@ -459,7 +474,7 @@
                 <footer class="footer">
                     <span id="display-footer-email"></span>
                     <span id="display-footer-phone"></span>
-                    <a id="display-footer-linkedin" href="" target="_blank" rel="noopener noreferrer"></a>
+                    <a id="display-footer-linkedin" href=""></a>
                     <span id="display-footer-location"></span>
                 </footer>
             </div>
@@ -467,9 +482,15 @@
     </main>
 
     <script>
-        (function() {
-            // DOM references
-            const inputs = {
+        const config = {
+            name: { minSize: 10, maxSize: 47, minWidth: 120, maxHeight: 110 },
+            bio: { minSize: 4, baseSize: 15, maxSize: 50, step: 0.5, containerHeight: 360, leadOffset: 2 },
+            skills: { minSize: 6, baseSize: 9, step: 0.5 },
+            sizing: { maxAttempts: 100 }
+        };
+
+        const elements = {
+            inputs: {
                 name: document.getElementById('input-name'),
                 field: document.getElementById('input-field'),
                 company: document.getElementById('input-company'),
@@ -479,9 +500,8 @@
                 linkedin: document.getElementById('input-linkedin'),
                 bio: document.getElementById('input-bio'),
                 skills: document.getElementById('input-skills'),
-            };
-
-            const displays = {
+            },
+            displays: {
                 name: document.getElementById('display-name'),
                 field: document.getElementById('display-field'),
                 company: document.getElementById('display-company'),
@@ -492,297 +512,256 @@
                 footerPhone: document.getElementById('display-footer-phone'),
                 footerLinkedin: document.getElementById('display-footer-linkedin'),
                 footerLocation: document.getElementById('display-footer-location'),
-            };
-
-            const containers = {
+            },
+            containers: {
                 header: document.getElementById('header-box'),
                 bio: document.getElementById('bio-container'),
                 skills: document.getElementById('skills-container'),
-            };
+            },
+            exportBtn: document.getElementById('export-btn'),
+        };
 
-            const exportBtn = document.getElementById('export-btn');
+        function splitBioText(text) {
+            if (!text) return ['', ''];
+            const sentences = text.split(/(?<=[.!?])\s+/);
+            const lead = sentences[0] || '';
+            const body = sentences.slice(1).join(' ').trim();
+            return [lead, body ? ' ' + body : ''];
+        }
 
-            // Helper: split bio into lead sentence + body
-            function splitBioText(text) {
-                if (!text || text.trim() === '') return ['', ''];
-                // split on sentence boundaries . ! ? followed by space
-                const sentences = text.match(/[^.!?]+[.!?]+|.+$/g);
-                if (!sentences || sentences.length === 0) return [text, ''];
-                const lead = sentences[0].trim();
-                const rest = sentences.slice(1).join(' ').trim();
-                return [lead, rest ? ' ' + rest : ''];
-            }
+        function fitNameText() {
+            const nameEl = elements.displays.name;
+            const headerEl = elements.containers.header;
 
-            // Dynamic font fitting for name (preserve desktop & mobile harmony)
-            function fitNameText() {
-                const nameEl = displays.name;
-                const headerEl = containers.header;
-                if (!nameEl || !headerEl) return;
+            let size = config.name.minSize;
+            nameEl.style.fontSize = size + 'px';
 
-                const rawName = inputs.name.value.trim();
-                nameEl.style.fontSize = ''; // reset
-                let size = 32; // start mid-range
+            while (
+                nameEl.scrollWidth <= (headerEl.clientWidth - config.name.minWidth) &&
+                nameEl.scrollHeight < config.name.maxHeight &&
+                size < config.name.maxSize
+            ) {
+                size++;
                 nameEl.style.fontSize = size + 'px';
-
-                const maxWidth = headerEl.clientWidth - 40; // safety margin
-                const maxHeight = 110;
-                let minSize = 20;
-                let maxSize = 52;
-
-                // shrink if overflow
-                while ((nameEl.scrollWidth > maxWidth || nameEl.scrollHeight > maxHeight) && size > minSize) {
-                    size -= 2;
-                    nameEl.style.fontSize = size + 'px';
-                }
-                // grow if space
-                while (nameEl.scrollWidth < maxWidth - 20 && nameEl.scrollHeight < maxHeight - 10 && size < maxSize) {
-                    size += 2;
-                    nameEl.style.fontSize = size + 'px';
-                    if (nameEl.scrollWidth > maxWidth || nameEl.scrollHeight > maxHeight) {
-                        size -= 2;
-                        nameEl.style.fontSize = size + 'px';
-                        break;
-                    }
-                }
-                // clamp readability
-                nameEl.style.fontSize = Math.max(24, Math.min(52, size)) + 'px';
             }
 
-            // Bio dynamic height adjust (strict to 360px)
-            function fitBioText() {
-                const bioLeadEl = displays.bioLead;
-                const bioBodyEl = displays.bioBody;
-                const bioContainer = containers.bio;
-                const rawBio = inputs.bio.value;
+            nameEl.style.fontSize = (size - 1) + 'px';
+        }
 
-                const [lead, body] = splitBioText(rawBio);
-                bioLeadEl.textContent = lead;
-                bioBodyEl.textContent = body;
+        function fitBioText() {
+            const bioLeadEl = elements.displays.bioLead;
+            const bioBodyEl = elements.displays.bioBody;
+            const bioContainerEl = elements.containers.bio;
 
-                if (!lead && !body) {
-                    bioLeadEl.textContent = '';
-                    bioBodyEl.textContent = '';
-                    return;
-                }
+            const [lead, body] = splitBioText(elements.inputs.bio.value);
 
-                // initial sizes
-                let bodyFontSize = 14;
-                let leadFontSize = 17;
+            bioLeadEl.textContent = lead;
+            bioBodyEl.textContent = body;
 
-                bioBodyEl.style.fontSize = bodyFontSize + 'px';
-                bioLeadEl.style.fontSize = leadFontSize + 'px';
+            if (!lead) return;
 
-                const targetHeight = 360; // fixed as per design
-                let attempts = 0;
-                const maxAttempts = 35;
+            let size = config.bio.baseSize;
+            bioBodyEl.style.fontSize = size + 'px';
+            bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
 
-                // Shrink if overflowing
-                while (bioContainer.scrollHeight > targetHeight + 8 && bodyFontSize > 9 && attempts < maxAttempts) {
-                    bodyFontSize -= 0.6;
-                    leadFontSize = bodyFontSize + 3;
-                    bioBodyEl.style.fontSize = bodyFontSize + 'px';
-                    bioLeadEl.style.fontSize = leadFontSize + 'px';
-                    attempts++;
-                }
-                // Expand if too small and there's headroom
-                attempts = 0;
-                while (bioContainer.scrollHeight < targetHeight - 20 && bodyFontSize < 20 && attempts < maxAttempts) {
-                    bodyFontSize += 0.6;
-                    leadFontSize = bodyFontSize + 3;
-                    bioBodyEl.style.fontSize = bodyFontSize + 'px';
-                    bioLeadEl.style.fontSize = leadFontSize + 'px';
-                    if (bioContainer.scrollHeight > targetHeight + 5) {
-                        bodyFontSize -= 0.6;
-                        leadFontSize = bodyFontSize + 3;
-                        bioBodyEl.style.fontSize = bodyFontSize + 'px';
-                        bioLeadEl.style.fontSize = leadFontSize + 'px';
-                        break;
-                    }
-                    attempts++;
-                }
-                // final clamping for consistency
-                bioBodyEl.style.fontSize = Math.min(19, Math.max(9.5, bodyFontSize)) + 'px';
-                bioLeadEl.style.fontSize = (parseFloat(bioBodyEl.style.fontSize) + 3) + 'px';
+            let attempts = 0;
+            while (bioContainerEl.scrollHeight > config.bio.containerHeight && size > config.bio.minSize && attempts < config.sizing.maxAttempts) {
+                size -= config.bio.step;
+                bioBodyEl.style.fontSize = size + 'px';
+                bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
+                attempts++;
             }
 
-            // Skills pills rendering + dynamic font scaling to fit skills container height (110px)
-            function fitSkillsText() {
-                const skillsListEl = displays.skills;
-                const skillsContainer = containers.skills;
-                const skillsRaw = inputs.skills.value;
+            attempts = 0;
+            while (bioContainerEl.scrollHeight <= config.bio.containerHeight && size < config.bio.maxSize && attempts < config.sizing.maxAttempts) {
+                size += config.bio.step;
+                bioBodyEl.style.fontSize = size + 'px';
+                bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
+                attempts++;
+            }
 
-                skillsListEl.innerHTML = '';
-                if (skillsRaw.trim()) {
-                    const skillsArray = skillsRaw.split(',').map(s => s.trim()).filter(s => s);
-                    skillsArray.forEach(skill => {
+            bioBodyEl.style.fontSize = (size - config.bio.step) + 'px';
+            bioLeadEl.style.fontSize = (size + config.bio.leadOffset - config.bio.step) + 'px';
+        }
+
+        function fitSkillsText() {
+            const skillsListEl = elements.displays.skills;
+            const skillsContainerEl = elements.containers.skills;
+            const skillsInputEl = elements.inputs.skills;
+
+            skillsListEl.innerHTML = '';
+
+            const skillsText = skillsInputEl.value.trim();
+            if (skillsText) {
+                skillsText.split(',').forEach(skill => {
+                    const trimmed = skill.trim();
+                    if (trimmed) {
                         const pill = document.createElement('span');
                         pill.className = 'skill-pill';
-                        pill.textContent = skill.toUpperCase();
+                        pill.textContent = trimmed.toUpperCase();
                         skillsListEl.appendChild(pill);
+                    }
+                });
+            }
+
+            let size = config.skills.baseSize;
+            skillsListEl.style.fontSize = size + 'px';
+
+            let attempts = 0;
+            while (skillsListEl.scrollHeight > skillsContainerEl.clientHeight && size > config.skills.minSize && attempts < config.sizing.maxAttempts) {
+                size -= config.skills.step;
+                skillsListEl.style.fontSize = size + 'px';
+                attempts++;
+            }
+        }
+
+        function update() {
+            const nameInput = elements.inputs.name.value;
+
+            elements.displays.name.textContent = nameInput.toUpperCase() || '';
+            elements.displays.field.textContent = elements.inputs.field.value.toUpperCase() || '';
+            elements.displays.company.textContent = elements.inputs.company.value.toUpperCase() || '';
+
+            const emailVal = elements.inputs.email.value || '';
+            const phoneVal = elements.inputs.phone.value || '';
+            const linkedinVal = elements.inputs.linkedin.value || '';
+            const locationVal = elements.inputs.location.value || '';
+
+            elements.displays.footerEmail.textContent = emailVal;
+            elements.displays.footerPhone.textContent = phoneVal;
+            
+            elements.displays.footerLinkedin.textContent = linkedinVal;
+            elements.displays.footerLinkedin.href = linkedinVal ? (linkedinVal.startsWith('http') ? linkedinVal : `https://${linkedinVal}`) : '';
+            elements.displays.footerLinkedin.target = '_blank';
+            elements.displays.footerLinkedin.rel = 'noopener noreferrer';
+            
+            elements.displays.footerLocation.textContent = locationVal;
+
+            fitNameText();
+            fitBioText();
+            fitSkillsText();
+        }
+
+        let debounceTimer;
+        function debouncedUpdate() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(update, 100);
+        }
+
+        function generatePDF() {
+            const name = elements.inputs.name.value?.trim() || 'User';
+            if (!name || !elements.inputs.field.value?.trim()) {
+                alert('Please fill in at least Name and Field');
+                return;
+            }
+
+            const fileName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
+            const canvas = document.getElementById('canvas');
+            
+            if (!canvas) {
+                console.error('Canvas element not found');
+                return;
+            }
+
+            // Mobile fix: Store original styles, ensure proper dimensions for PDF capture
+            const originalPosition = canvas.style.position;
+            const originalTransform = canvas.style.transform;
+            const originalWidth = canvas.style.width;
+            const originalHeight = canvas.style.height;
+            
+            // Force exact dimensions for PDF capture (prevents splitting into 2 pages)
+            canvas.style.width = '595px';
+            canvas.style.height = '842px';
+            canvas.style.position = 'relative';
+            canvas.style.transform = 'none';
+            
+            // Small delay to ensure styles apply
+            setTimeout(() => {
+                try {
+                    // Use html2pdf with precise settings for single-page A4 output
+                    const opt = {
+                        margin: 0,
+                        filename: fileName,
+                        image: { type: 'jpeg', quality: 0.98 },
+                        html2canvas: { 
+                            scale: 3, 
+                            useCORS: true,
+                            logging: false,
+                            letterRendering: true,
+                            backgroundColor: null
+                        },
+                        jsPDF: { 
+                            unit: 'px', 
+                            format: [595, 842], 
+                            orientation: 'portrait',
+                            compress: true
+                        }
+                    };
+                    
+                    html2pdf().set(opt).from(canvas).save().then(() => {
+                        // Restore original styles after PDF generation
+                        canvas.style.position = originalPosition;
+                        canvas.style.transform = originalTransform;
+                        canvas.style.width = originalWidth;
+                        canvas.style.height = originalHeight;
+                    }).catch((error) => {
+                        console.error('PDF generation failed:', error);
+                        canvas.style.position = originalPosition;
+                        canvas.style.transform = originalTransform;
+                        canvas.style.width = originalWidth;
+                        canvas.style.height = originalHeight;
+                        alert('Failed to generate PDF. Please try again.');
                     });
+                } catch (error) {
+                    console.error('PDF generation error:', error);
+                    canvas.style.position = originalPosition;
+                    canvas.style.transform = originalTransform;
+                    canvas.style.width = originalWidth;
+                    canvas.style.height = originalHeight;
+                    alert('Failed to generate PDF. Please try again.');
                 }
+            }, 50);
+        }
 
-                if (!skillsListEl.children.length) {
-                    skillsListEl.innerHTML = '<span class="skill-pill" style="opacity:0.5;">—</span>';
-                }
+        function initializeApp() {
+            const requiredElements = [
+                'input-name', 'input-field', 'input-bio', 'input-skills',
+                'display-name', 'display-field', 'header-box', 'bio-container',
+                'skills-container', 'export-btn', 'canvas'
+            ];
 
-                let fontSize = 9.5;
-                skillsListEl.style.fontSize = fontSize + 'px';
-                const maxHeight = containers.skills.clientHeight || 110;
-                let attempts = 0;
-                // shrink if overflow
-                while (skillsListEl.scrollHeight > maxHeight + 5 && fontSize > 6.5 && attempts < 20) {
-                    fontSize -= 0.5;
-                    skillsListEl.style.fontSize = fontSize + 'px';
-                    attempts++;
+            for (const id of requiredElements) {
+                if (!document.getElementById(id)) {
+                    console.error(`Required element not found: #${id}`);
+                    return false;
                 }
-                // slight grow if very compact but not necessary
-                if (skillsListEl.scrollHeight < maxHeight - 20 && fontSize < 13 && skillsListEl.children.length > 2) {
-                    let newSize = fontSize + 0.8;
-                    skillsListEl.style.fontSize = newSize + 'px';
-                    if (skillsListEl.scrollHeight > maxHeight + 2) {
-                        skillsListEl.style.fontSize = fontSize + 'px';
-                    } else {
-                        fontSize = newSize;
-                    }
-                }
-                // ensure all pills wrap nicely and font is legible
-                skillsListEl.style.fontSize = Math.max(7, Math.min(13, fontSize)) + 'px';
             }
 
-            // Full UI update
-            function updateAll() {
-                // update textual content
-                displays.name.textContent = inputs.name.value.toUpperCase() || ' ';
-                displays.field.textContent = inputs.field.value.toUpperCase() || '';
-                displays.company.textContent = inputs.company.value.toUpperCase() || '';
+            Object.values(elements.inputs).forEach(input => {
+                input.addEventListener('input', debouncedUpdate);
+            });
 
-                // footer fields
-                displays.footerEmail.textContent = inputs.email.value || '';
-                displays.footerPhone.textContent = inputs.phone.value || '';
-                displays.footerLocation.textContent = inputs.location.value || '';
+            elements.exportBtn.addEventListener('click', generatePDF);
+            
+            // Force initial update after a short delay to ensure layout is calculated
+            setTimeout(() => {
+                update();
+            }, 100);
+            
+            return true;
+        }
 
-                const linkedinRaw = inputs.linkedin.value.trim();
-                if (linkedinRaw) {
-                    let hrefValue = linkedinRaw;
-                    if (!linkedinRaw.startsWith('http://') && !linkedinRaw.startsWith('https://')) {
-                        hrefValue = 'https://' + linkedinRaw;
-                    }
-                    displays.footerLinkedin.href = hrefValue;
-                    displays.footerLinkedin.textContent = linkedinRaw;
-                } else {
-                    displays.footerLinkedin.href = '';
-                    displays.footerLinkedin.textContent = '';
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                if (initializeApp()) {
+                    update();
                 }
-
-                // force font recalc (use requestAnimationFrame to avoid layout thrash)
-                requestAnimationFrame(() => {
-                    fitNameText();
-                    fitBioText();
-                    fitSkillsText();
-                });
+            });
+        } else {
+            if (initializeApp()) {
+                update();
             }
-
-            // Debouncer for live editing
-            let debounceTimer;
-            function debouncedUpdate() {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(() => {
-                    updateAll();
-                }, 60);
-            }
-
-            // Attach event listeners
-            function bindEvents() {
-                for (let key in inputs) {
-                    if (inputs[key]) {
-                        inputs[key].addEventListener('input', debouncedUpdate);
-                        inputs[key].addEventListener('change', debouncedUpdate);
-                    }
-                }
-                window.addEventListener('resize', () => {
-                    debouncedUpdate();
-                });
-                // also update on orientation change (mobile)
-                window.addEventListener('orientationchange', () => {
-                    setTimeout(debouncedUpdate, 50);
-                });
-            }
-
-            // PDF Export fix: ensures canvas remains un-scaled and uses fixed dimensions to avoid blank PDF on mobile.
-            function generatePDF() {
-                const nameVal = inputs.name.value.trim();
-                const fieldVal = inputs.field.value.trim();
-                if (!nameVal || !fieldVal) {
-                    alert('Please fill at least Name and Field before exporting.');
-                    return;
-                }
-
-                const canvasElem = document.getElementById('canvas');
-                if (!canvasElem) {
-                    alert('Canvas not found.');
-                    return;
-                }
-
-                // Mobile fix: temporary force style to original dimensions before capturing
-                const originalWidth = canvasElem.style.width;
-                const originalHeight = canvasElem.style.height;
-                const originalOverflow = document.body.style.overflow;
-                
-                // Ensure canvas has proper dimensions for html2pdf on mobile (some browsers require explicit)
-                canvasElem.style.width = '595px';
-                canvasElem.style.height = '842px';
-                // Avoid body scroll interference during capture
-                document.body.style.overflow = 'hidden';
-                
-                // Small delay to apply style
-                setTimeout(() => {
-                    try {
-                        const opt = {
-                            margin: 0,
-                            filename: `${nameVal.replace(/[^a-z0-9]/gi, '_')}_Portfolio.pdf`,
-                            image: { type: 'jpeg', quality: 0.98 },
-                            html2canvas: { scale: 2.5, useCORS: false, logging: false, letterRendering: true },
-                            jsPDF: { unit: 'px', format: [595, 842], orientation: 'portrait' }
-                        };
-                        html2pdf().set(opt).from(canvasElem).save().then(() => {
-                            // revert after save
-                            canvasElem.style.width = originalWidth || '';
-                            canvasElem.style.height = originalHeight || '';
-                            document.body.style.overflow = originalOverflow || '';
-                        }).catch(err => {
-                            console.error('PDF error', err);
-                            canvasElem.style.width = originalWidth || '';
-                            canvasElem.style.height = originalHeight || '';
-                            document.body.style.overflow = originalOverflow || '';
-                            alert('PDF generation failed, please retry.');
-                        });
-                    } catch (err) {
-                        canvasElem.style.width = originalWidth || '';
-                        canvasElem.style.height = originalHeight || '';
-                        document.body.style.overflow = originalOverflow || '';
-                        alert('Export error: ' + err.message);
-                    }
-                }, 80);
-            }
-
-            // manual update after initial load
-            function init() {
-                bindEvents();
-                updateAll();
-                exportBtn.addEventListener('click', generatePDF);
-                // Additional mutation observer to ensure after images/fonts load
-                setTimeout(() => {
-                    updateAll();
-                }, 200);
-            }
-
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', init);
-            } else {
-                init();
-            }
-        })();
+        }
     </script>
 </body>
 </html>
