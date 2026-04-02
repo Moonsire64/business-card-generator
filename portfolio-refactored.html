@@ -2,11 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Portfolio One-Pager Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=Inter:wght@400;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            text-rendering: geometricPrecision;
+        }
+
         :root {
             --cream: #f3f0e5;
             --ink: #0a0a0a;
@@ -21,13 +29,6 @@
             --layout-padding-v: 20px;
             --canvas-width: 595px;
             --canvas-height: 842px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            text-rendering: geometricPrecision;
         }
 
         html, body {
@@ -45,6 +46,7 @@
 
         .sidebar {
             width: 360px;
+            flex-shrink: 0;
             padding: 40px;
             background: #000;
             border-right: 1px solid #222;
@@ -71,9 +73,7 @@
             font-weight: 400;
         }
 
-        input:focus, textarea:focus {
-            border-color: var(--accent);
-        }
+        input:focus, textarea:focus { border-color: var(--accent); }
 
         textarea {
             resize: vertical;
@@ -92,14 +92,8 @@
             border-radius: 4px;
             transition: opacity 0.2s;
         }
-
-        .export-btn:hover {
-            opacity: 0.9;
-        }
-
-        .export-btn:active {
-            transform: scale(0.98);
-        }
+        .export-btn:hover  { opacity: 0.9; }
+        .export-btn:active { transform: scale(0.98); }
 
         .viewport {
             flex: 1;
@@ -107,6 +101,8 @@
             align-items: center;
             justify-content: center;
             background: #080808;
+            overflow: auto;
+            padding: 20px;
         }
 
         #canvas {
@@ -117,30 +113,13 @@
             grid-template-columns: var(--layout-rib-width) 1fr;
             flex-shrink: 0;
             position: relative;
-        }
-
-        .watermark {
-            position: absolute;
-            top: 45%;
-            left: 60%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 180px;
-            font-weight: bold;
-            color: rgba(0, 0, 0, 0.11);
-            pointer-events: none;
-            white-space: nowrap;
-            z-index: 1;
-            font-family: 'Helvetica', sans-serif;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
         }
 
         .rib {
-            background: linear-gradient(
-                180deg,
-                var(--accent-dark) 0px,
-                var(--accent-dark) 130px,
-                var(--accent) 130px,
-                var(--accent) 100%
-            );
+            background: linear-gradient(180deg,
+                var(--accent-dark) 0px, var(--accent-dark) 130px,
+                var(--accent)      130px, var(--accent) 100%);
             position: relative;
             display: flex;
             align-items: center;
@@ -148,7 +127,6 @@
             overflow: hidden;
             box-shadow: inset -8px 0 20px rgba(0,0,0,0.4), inset 4px 0 10px rgba(255,255,255,0.1);
         }
-
         .rib::before {
             content: "";
             position: absolute;
@@ -157,29 +135,18 @@
             pointer-events: none;
             mix-blend-mode: overlay;
         }
-
         .rib::after {
             content: "";
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                rgba(0,0,0,0.1) 0%,
-                transparent 20%,
-                transparent 80%,
-                rgba(0,0,0,0.2) 100%
-            );
+            inset: 0;
+            background: linear-gradient(90deg, rgba(0,0,0,0.1) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.2) 100%);
             pointer-events: none;
         }
 
         .rib-company {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) rotate(-90deg);
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%) rotate(-90deg);
             white-space: nowrap;
             font-family: 'JetBrains Mono';
             font-size: 9px;
@@ -301,7 +268,6 @@
             grid-template-columns: 1fr 1fr;
             grid-template-rows: 1fr 1fr;
             align-items: center;
-            justify-items: stretch;
             padding: 8px var(--layout-padding-h);
             font-family: 'JetBrains Mono';
             font-size: 8px;
@@ -310,247 +276,32 @@
             column-gap: 12px;
         }
 
-        #display-footer-email {
-            grid-column: 1;
-            grid-row: 1;
-            text-align: left;
-            justify-self: start;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
+        #display-footer-email    { grid-column:1; grid-row:1; justify-self:start; word-break:break-word; }
+        #display-footer-linkedin { grid-column:1; grid-row:2; justify-self:start; word-break:break-word; color:var(--cream); text-decoration:none; }
+        #display-footer-linkedin:hover { text-decoration:underline; }
+        #display-footer-phone    { grid-column:2; grid-row:1; justify-self:end; word-break:break-word; }
+        #display-footer-location { grid-column:2; grid-row:2; justify-self:end; word-break:break-word; }
 
-        #display-footer-linkedin {
-            grid-column: 1;
-            grid-row: 2;
-            text-align: left;
-            justify-self: start;
-            white-space: pre-wrap;
-            word-break: break-word;
-            color: var(--cream);
-            text-decoration: none;
-        }
-
-        #display-footer-linkedin:hover {
-            text-decoration: underline;
-        }
-
-        #display-footer-phone {
-            grid-column: 2;
-            grid-row: 1;
-            text-align: right;
-            justify-self: end;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        #display-footer-location {
-            grid-column: 2;
-            grid-row: 2;
-            text-align: right;
-            justify-self: end;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        /* MOBILE RESPONSIVE STYLES */
+        /* ── Mobile ── */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
                 height: auto;
-                overflow: auto;
+                overflow-y: auto;
+                overflow-x: hidden;
             }
-
             .sidebar {
                 width: 100%;
                 padding: 20px;
                 border-right: none;
                 border-bottom: 1px solid #222;
-                max-height: none;
                 overflow-y: visible;
             }
-
             .viewport {
-                flex: none !important;
-                align-items: flex-start !important;
-                justify-content: center !important;
-                background: #000 !important;
-                padding: 20px 10px 40px;
-                min-height: auto;
-            }
-
-            #canvas {
-                width: 100% !important;
-                height: auto !important;
-                max-width: 500px !important;
-                margin: 0 auto !important;
-            }
-
-            .main {
-                height: auto !important;
-            }
-
-            .header {
-                padding: 30px 30px 15px !important;
-                height: auto !important;
-            }
-
-            #display-name {
-                font-size: 28px !important;
-                line-height: 1 !important;
-                margin-bottom: 10px !important;
-            }
-
-            #display-field {
-                font-size: 11px !important;
-                margin-top: 10px !important;
-            }
-
-            .divider {
-                margin: 15px 30px 0 !important;
-                width: 30px !important;
-            }
-
-            .body-content {
-                padding: 15px 30px 25px !important;
-                margin-top: 15px !important;
-                flex: none !important;
-            }
-
-            #bio-container {
-                height: auto !important;
-                margin-bottom: 20px !important;
-                padding-bottom: 0 !important;
-                overflow: visible !important;
-            }
-
-            #bio-lead {
-                font-size: 13px !important;
-                margin-bottom: 6px !important;
-            }
-
-            #bio-body {
-                font-size: 12px !important;
-            }
-
-            #skills-container {
-                height: auto !important;
-                padding-bottom: 15px !important;
-                align-items: flex-start !important;
-            }
-
-            .skill-list {
-                gap: 5px !important;
-            }
-
-            .skill-pill {
-                font-size: 9px !important;
-                padding: 4px 7px !important;
-            }
-
-            .footer {
-                height: auto !important;
-                padding: 12px 30px !important;
-                grid-template-columns: 1fr !important;
-                grid-template-rows: auto auto auto auto !important;
-                gap: 0 !important;
-                row-gap: 6px !important;
-            }
-
-            #display-footer-email {
-                grid-column: 1 !important;
-                grid-row: 1 !important;
-                text-align: left !important;
-                justify-self: start !important;
-                font-size: 8px !important;
-            }
-
-            #display-footer-phone {
-                grid-column: 1 !important;
-                grid-row: 2 !important;
-                text-align: left !important;
-                justify-self: start !important;
-                font-size: 8px !important;
-            }
-
-            #display-footer-linkedin {
-                grid-column: 1 !important;
-                grid-row: 3 !important;
-                text-align: left !important;
-                justify-self: start !important;
-                font-size: 8px !important;
-            }
-
-            #display-footer-location {
-                grid-column: 1 !important;
-                grid-row: 4 !important;
-                text-align: left !important;
-                justify-self: start !important;
-                font-size: 8px !important;
-            }
-
-            .watermark {
-                display: none !important;
-            }
-        }
-
-        @media (max-width: 600px) {
-            .sidebar {
-                padding: 15px;
-            }
-
-            input, textarea {
-                font-size: 16px;
-            }
-
-            .export-btn {
-                padding: 15px;
-                font-size: 12px;
-            }
-
-            .viewport {
-                padding: 15px 5px 30px !important;
-            }
-
-            #canvas {
-                max-width: 100% !important;
-            }
-
-            .header {
-                padding: 20px 20px 12px !important;
-            }
-
-            #display-name {
-                font-size: 20px !important;
-            }
-
-            #display-field {
-                font-size: 10px !important;
-            }
-
-            .body-content {
-                padding: 12px 20px 20px !important;
-                margin-top: 10px !important;
-            }
-
-            #bio-container {
-                margin-bottom: 15px !important;
-            }
-
-            #bio-lead {
-                font-size: 12px !important;
-            }
-
-            #bio-body {
-                font-size: 11px !important;
-            }
-
-            .skill-pill {
-                font-size: 8px !important;
-                padding: 3px 6px !important;
-            }
-
-            .footer {
-                padding: 10px 20px !important;
+                overflow: visible;
+                padding: 16px 0;
+                justify-content: flex-start;
+                align-items: flex-start;
             }
         }
     </style>
@@ -558,16 +309,16 @@
 <body>
     <aside class="sidebar">
         <div class="sidebar-title">PROFILE</div>
-        <input type="text" id="input-name" placeholder="NAME" aria-label="Full name" value="" maxlength="30" autocomplete="name">
-        <input type="text" id="input-field" placeholder="FIELD" aria-label="Professional field" value="" maxlength="30" autocomplete="off">
-        <input type="text" id="input-company" placeholder="COMPANY" aria-label="Company name" value="" maxlength="50" autocomplete="organization">
-        <input type="email" id="input-email" placeholder="EMAIL" aria-label="Email address" value="" maxlength="65" autocomplete="email">
-        <input type="tel" id="input-phone" placeholder="PHONE" aria-label="Phone number" value="" maxlength="30" autocomplete="tel">
-        <input type="text" id="input-location" placeholder="LOCATION" aria-label="Location" value="" maxlength="30" autocomplete="address-level1">
-        <input type="text" id="input-linkedin" placeholder="LINKEDIN" aria-label="LinkedIn URL" value="" maxlength="65">
-        <textarea id="input-bio" placeholder="PROFESSIONAL STATEMENT" aria-label="Professional statement" rows="10" maxlength="600"></textarea>
-        <input type="text" id="input-skills" placeholder="SKILLS (comma-separated)" aria-label="Skills list" value="" maxlength="350">
-        <button class="export-btn" id="export-btn" aria-label="Export portfolio as PDF">EXPORT PDF</button>
+        <input type="text"  id="input-name"     placeholder="NAME"                     maxlength="30"  autocomplete="name">
+        <input type="text"  id="input-field"    placeholder="FIELD"                    maxlength="30"  autocomplete="off">
+        <input type="text"  id="input-company"  placeholder="COMPANY"                  maxlength="50"  autocomplete="organization">
+        <input type="email" id="input-email"    placeholder="EMAIL"                    maxlength="65"  autocomplete="email">
+        <input type="tel"   id="input-phone"    placeholder="PHONE"                    maxlength="30"  autocomplete="tel">
+        <input type="text"  id="input-location" placeholder="LOCATION"                 maxlength="30"  autocomplete="address-level1">
+        <input type="text"  id="input-linkedin" placeholder="LINKEDIN"                 maxlength="65">
+        <textarea           id="input-bio"      placeholder="PROFESSIONAL STATEMENT"   maxlength="600" rows="10"></textarea>
+        <input type="text"  id="input-skills"   placeholder="SKILLS (comma-separated)" maxlength="350">
+        <button class="export-btn" id="export-btn">EXPORT PDF</button>
     </aside>
 
     <main class="viewport">
@@ -593,7 +344,7 @@
                 <footer class="footer">
                     <span id="display-footer-email"></span>
                     <span id="display-footer-phone"></span>
-                    <a id="display-footer-linkedin" href=""></a>
+                    <a    id="display-footer-linkedin" href="" target="_blank" rel="noopener noreferrer"></a>
                     <span id="display-footer-location"></span>
                 </footer>
             </div>
@@ -601,46 +352,64 @@
     </main>
 
     <script>
+        const CANVAS_W = 595;
+        const CANVAS_H = 842;
+
         const config = {
-            name: { minSize: 10, maxSize: 47, minWidth: 120, maxHeight: 110 },
-            bio: { minSize: 4, baseSize: 15, maxSize: 50, step: 0.5, containerHeight: 360, leadOffset: 2 },
+            name:   { minSize: 10, maxSize: 47, minWidth: 120, maxHeight: 110 },
+            bio:    { minSize: 4, baseSize: 15, maxSize: 50, step: 0.5, containerHeight: 360, leadOffset: 2 },
             skills: { minSize: 6, baseSize: 9, step: 0.5 },
-            sizing: { maxAttempts: 100 }
+            sizing: { maxAttempts: 100 },
         };
 
-        const elements = {
-            inputs: {
-                name: document.getElementById('input-name'),
-                field: document.getElementById('input-field'),
-                company: document.getElementById('input-company'),
-                email: document.getElementById('input-email'),
-                phone: document.getElementById('input-phone'),
+        const el = {
+            inp: {
+                name:     document.getElementById('input-name'),
+                field:    document.getElementById('input-field'),
+                company:  document.getElementById('input-company'),
+                email:    document.getElementById('input-email'),
+                phone:    document.getElementById('input-phone'),
                 location: document.getElementById('input-location'),
                 linkedin: document.getElementById('input-linkedin'),
-                bio: document.getElementById('input-bio'),
-                skills: document.getElementById('input-skills'),
+                bio:      document.getElementById('input-bio'),
+                skills:   document.getElementById('input-skills'),
             },
-            displays: {
-                name: document.getElementById('display-name'),
-                field: document.getElementById('display-field'),
-                company: document.getElementById('display-company'),
-                bioLead: document.getElementById('bio-lead'),
-                bioBody: document.getElementById('bio-body'),
-                skills: document.getElementById('display-skills'),
-                footerEmail: document.getElementById('display-footer-email'),
-                footerPhone: document.getElementById('display-footer-phone'),
-                footerLinkedin: document.getElementById('display-footer-linkedin'),
-                footerLocation: document.getElementById('display-footer-location'),
+            out: {
+                name:     document.getElementById('display-name'),
+                field:    document.getElementById('display-field'),
+                company:  document.getElementById('display-company'),
+                bioLead:  document.getElementById('bio-lead'),
+                bioBody:  document.getElementById('bio-body'),
+                skills:   document.getElementById('display-skills'),
+                email:    document.getElementById('display-footer-email'),
+                phone:    document.getElementById('display-footer-phone'),
+                linkedin: document.getElementById('display-footer-linkedin'),
+                location: document.getElementById('display-footer-location'),
             },
-            containers: {
+            con: {
                 header: document.getElementById('header-box'),
-                bio: document.getElementById('bio-container'),
+                bio:    document.getElementById('bio-container'),
                 skills: document.getElementById('skills-container'),
             },
+            canvas:    document.getElementById('canvas'),
             exportBtn: document.getElementById('export-btn'),
         };
 
-        function splitBioText(text) {
+        function scaleCanvas() {
+            if (window.innerWidth > 768) {
+                el.canvas.style.zoom = '';
+                return;
+            }
+            const viewport = el.canvas.parentElement;
+            el.canvas.style.zoom = '';
+            const available = viewport.getBoundingClientRect().width;
+            const zoom = Math.min(1, Math.floor((available / CANVAS_W) * 1000) / 1000) * 0.98;
+            el.canvas.style.zoom = zoom;
+        }
+
+        window.addEventListener('resize', scaleCanvas);
+
+        function splitBio(text) {
             if (!text) return ['', ''];
             const sentences = text.split(/(?<=[.!?])\s+/);
             const lead = sentences[0] || '';
@@ -648,186 +417,118 @@
             return [lead, body ? ' ' + body : ''];
         }
 
-        function fitNameText() {
-            const nameEl = elements.displays.name;
-            const headerEl = elements.containers.header;
-
+        function fitName() {
+            const n = el.out.name, h = el.con.header;
             let size = config.name.minSize;
-            nameEl.style.fontSize = size + 'px';
-
-            while (
-                nameEl.scrollWidth <= (headerEl.clientWidth - config.name.minWidth) &&
-                nameEl.scrollHeight < config.name.maxHeight &&
-                size < config.name.maxSize
-            ) {
-                size++;
-                nameEl.style.fontSize = size + 'px';
+            n.style.fontSize = size + 'px';
+            while (n.scrollWidth <= h.clientWidth - config.name.minWidth &&
+                   n.scrollHeight < config.name.maxHeight &&
+                   size < config.name.maxSize) {
+                n.style.fontSize = (++size) + 'px';
             }
-
-            nameEl.style.fontSize = (size - 1) + 'px';
+            n.style.fontSize = (size - 1) + 'px';
         }
 
-        function fitBioText() {
-            const bioLeadEl = elements.displays.bioLead;
-            const bioBodyEl = elements.displays.bioBody;
-            const bioContainerEl = elements.containers.bio;
+        function fitBio() {
+            const lead = el.out.bioLead, body = el.out.bioBody, box = el.con.bio;
+            const [l, b] = splitBio(el.inp.bio.value);
+            lead.textContent = l;
+            body.textContent = b;
+            if (!l) return;
 
-            const [lead, body] = splitBioText(elements.inputs.bio.value);
+            const set = s => {
+                body.style.fontSize = s + 'px';
+                lead.style.fontSize = (s + config.bio.leadOffset) + 'px';
+            };
 
-            bioLeadEl.textContent = lead;
-            bioBodyEl.textContent = body;
-
-            if (!lead) return;
-
-            let size = config.bio.baseSize;
-            bioBodyEl.style.fontSize = size + 'px';
-            bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
-
-            let attempts = 0;
-            while (bioContainerEl.scrollHeight > config.bio.containerHeight && size > config.bio.minSize && attempts < config.sizing.maxAttempts) {
-                size -= config.bio.step;
-                bioBodyEl.style.fontSize = size + 'px';
-                bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
-                attempts++;
-            }
-
-            attempts = 0;
-            while (bioContainerEl.scrollHeight <= config.bio.containerHeight && size < config.bio.maxSize && attempts < config.sizing.maxAttempts) {
-                size += config.bio.step;
-                bioBodyEl.style.fontSize = size + 'px';
-                bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
-                attempts++;
-            }
-
-            bioBodyEl.style.fontSize = (size - config.bio.step) + 'px';
-            bioLeadEl.style.fontSize = (size + config.bio.leadOffset - config.bio.step) + 'px';
+            let size = config.bio.baseSize, a = 0;
+            set(size);
+            while (box.scrollHeight > config.bio.containerHeight && size > config.bio.minSize && a++ < config.sizing.maxAttempts) set(size -= config.bio.step);
+            a = 0;
+            while (box.scrollHeight <= config.bio.containerHeight && size < config.bio.maxSize && a++ < config.sizing.maxAttempts) set(size += config.bio.step);
+            set(size - config.bio.step);
         }
 
-        function fitSkillsText() {
-            const skillsListEl = elements.displays.skills;
-            const skillsContainerEl = elements.containers.skills;
-            const skillsInputEl = elements.inputs.skills;
-
-            skillsListEl.innerHTML = '';
-
-            const skillsText = skillsInputEl.value.trim();
-            if (skillsText) {
-                skillsText.split(',').forEach(skill => {
-                    const trimmed = skill.trim();
-                    if (trimmed) {
-                        const pill = document.createElement('span');
-                        pill.className = 'skill-pill';
-                        pill.textContent = trimmed.toUpperCase();
-                        skillsListEl.appendChild(pill);
-                    }
-                });
-            }
-
-            let size = config.skills.baseSize;
-            skillsListEl.style.fontSize = size + 'px';
-
-            let attempts = 0;
-            while (skillsListEl.scrollHeight > skillsContainerEl.clientHeight && size > config.skills.minSize && attempts < config.sizing.maxAttempts) {
-                size -= config.skills.step;
-                skillsListEl.style.fontSize = size + 'px';
-                attempts++;
-            }
+        function fitSkills() {
+            const list = el.out.skills, box = el.con.skills;
+            list.innerHTML = '';
+            (el.inp.skills.value || '').split(',').forEach(s => {
+                const t = s.trim();
+                if (!t) return;
+                const pill = document.createElement('span');
+                pill.className = 'skill-pill';
+                pill.textContent = t.toUpperCase();
+                list.appendChild(pill);
+            });
+            let size = config.skills.baseSize, a = 0;
+            list.style.fontSize = size + 'px';
+            while (list.scrollHeight > box.clientHeight && size > config.skills.minSize && a++ < config.sizing.maxAttempts)
+                list.style.fontSize = (size -= config.skills.step) + 'px';
         }
 
         function update() {
-            const nameInput = elements.inputs.name.value;
-
-            elements.displays.name.textContent = nameInput.toUpperCase() || '';
-            elements.displays.field.textContent = elements.inputs.field.value.toUpperCase() || '';
-            elements.displays.company.textContent = elements.inputs.company.value.toUpperCase() || '';
-
-            const emailVal = elements.inputs.email.value || '';
-            const phoneVal = elements.inputs.phone.value || '';
-            const linkedinVal = elements.inputs.linkedin.value || '';
-            const locationVal = elements.inputs.location.value || '';
-
-            elements.displays.footerEmail.textContent = emailVal;
-            elements.displays.footerPhone.textContent = phoneVal;
-            
-            elements.displays.footerLinkedin.textContent = linkedinVal;
-            elements.displays.footerLinkedin.href = linkedinVal ? (linkedinVal.startsWith('http') ? linkedinVal : `https://${linkedinVal}`) : '';
-            elements.displays.footerLinkedin.target = '_blank';
-            elements.displays.footerLinkedin.rel = 'noopener noreferrer';
-            
-            elements.displays.footerLocation.textContent = locationVal;
-
-            fitNameText();
-            fitBioText();
-            fitSkillsText();
+            el.out.name.textContent     = el.inp.name.value.toUpperCase();
+            el.out.field.textContent    = el.inp.field.value.toUpperCase();
+            el.out.company.textContent  = el.inp.company.value.toUpperCase();
+            el.out.email.textContent    = el.inp.email.value;
+            el.out.phone.textContent    = el.inp.phone.value;
+            el.out.location.textContent = el.inp.location.value;
+            const li = el.inp.linkedin.value;
+            el.out.linkedin.textContent = li;
+            el.out.linkedin.href = li ? (li.startsWith('http') ? li : 'https://' + li) : '';
+            fitName(); fitBio(); fitSkills();
         }
 
         let debounceTimer;
-        function debouncedUpdate() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(update, 100);
-        }
+        const debouncedUpdate = () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(update, 100); };
 
-        function generatePDF() {
-            const name = elements.inputs.name.value?.trim() || 'User';
-            if (!name || !elements.inputs.field.value?.trim()) {
+        async function generatePDF() {
+            if (!el.inp.name.value?.trim() || !el.inp.field.value?.trim()) {
                 alert('Please fill in at least Name and Field');
                 return;
             }
 
-            const fileName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
-            const canvas = document.getElementById('canvas');
-            
-            if (!canvas) {
-                console.error('Canvas element not found');
-                return;
-            }
+            const fileName = el.inp.name.value.trim().replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
+            const btn = el.exportBtn;
+            btn.textContent = 'GENERATING…';
+            btn.disabled = true;
+
+            const prevZoom = el.canvas.style.zoom;
+            el.canvas.style.zoom = '';
+
+            await new Promise(r => setTimeout(r, 60));
 
             try {
-                html2pdf().set({
-                    margin: 0,
-                    filename: fileName,
-                    html2canvas: { scale: 3, useCORS: true },
-                    jsPDF: { unit: 'px', format: [595, 842], orientation: 'portrait' }
-                }).from(canvas).save();
-            } catch (error) {
-                console.error('PDF generation failed:', error);
-                alert('Failed to generate PDF. Please try again.');
+                const captured = await html2canvas(el.canvas, {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#f3f0e5',
+                    width:  CANVAS_W,
+                    height: CANVAS_H,
+                });
+
+                const imgData = captured.toDataURL('image/png');
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({ unit: 'pt', format: [CANVAS_W, CANVAS_H], orientation: 'portrait' });
+                pdf.addImage(imgData, 'PNG', 0, 0, CANVAS_W, CANVAS_H, '', 'FAST');
+                pdf.save(fileName);
+
+            } catch (err) {
+                console.error(err);
+                alert('PDF generation failed. Please try again.');
+            } finally {
+                el.canvas.style.zoom = prevZoom;
+                btn.textContent = 'EXPORT PDF';
+                btn.disabled = false;
             }
         }
 
-        function initializeApp() {
-            const requiredElements = [
-                'input-name', 'input-field', 'input-bio', 'input-skills',
-                'display-name', 'display-field', 'header-box', 'bio-container',
-                'skills-container', 'export-btn', 'canvas'
-            ];
-
-            for (const id of requiredElements) {
-                if (!document.getElementById(id)) {
-                    console.error(`Required element not found: #${id}`);
-                    return false;
-                }
-            }
-
-            Object.values(elements.inputs).forEach(input => {
-                input.addEventListener('input', debouncedUpdate);
-            });
-
-            elements.exportBtn.addEventListener('click', generatePDF);
-            return true;
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                if (initializeApp()) {
-                    update();
-                }
-            });
-        } else {
-            if (initializeApp()) {
-                update();
-            }
-        }
+        Object.values(el.inp).forEach(i => i.addEventListener('input', debouncedUpdate));
+        el.exportBtn.addEventListener('click', generatePDF);
+        update();
+        scaleCanvas();
     </script>
 </body>
 </html>
