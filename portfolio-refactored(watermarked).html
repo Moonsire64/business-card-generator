@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Portfolio One-Pager Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=Inter:wght@400;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -109,14 +110,6 @@
             background: #080808;
             overflow: auto;
             padding: 20px;
-        }
-
-        /* Mobile: allow horizontal scroll to see full canvas */
-        @media (max-width: 768px) {
-            .viewport {
-                overflow: auto;
-                justify-content: flex-start;
-            }
         }
 
         #canvas {
@@ -363,6 +356,7 @@
             word-break: break-word;
         }
 
+        /* Mobile: allow horizontal scroll, keep canvas at exact size */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -377,6 +371,17 @@
                 border-bottom: 1px solid #222;
                 max-height: none;
                 overflow-y: visible;
+            }
+
+            .viewport {
+                overflow-x: auto;
+                overflow-y: visible;
+                justify-content: flex-start;
+                padding: 20px;
+            }
+            
+            #canvas {
+                margin: 0 auto;
             }
         }
     </style>
@@ -604,46 +609,40 @@
             const fileName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
             const canvas = document.getElementById('canvas');
             
-            // Store original styles
-            const originalOverflow = canvas.style.overflow;
-            const originalPosition = canvas.style.position;
+            // Show loading state
+            const exportBtn = elements.exportBtn;
+            const originalBtnText = exportBtn.textContent;
+            exportBtn.textContent = 'GENERATING PDF...';
+            exportBtn.disabled = true;
             
-            // Ensure canvas is fully visible
-            canvas.style.overflow = 'visible';
-            canvas.style.position = 'relative';
-            
-            // Force a reflow to ensure all content is rendered
-            await new Promise(resolve => setTimeout(resolve, 50));
-            
-            const opt = {
-                margin: 0,
-                filename: fileName,
-                image: { type: 'jpeg', quality: 1.0 },
-                html2canvas: { 
+            try {
+                // Use html2canvas directly with jspdf for better control
+                const capturedCanvas = await html2canvas(canvas, {
                     scale: 2,
                     useCORS: true,
                     logging: false,
-                    letterRendering: true,
                     backgroundColor: '#f3f0e5',
                     windowWidth: 595,
                     windowHeight: 842
-                },
-                jsPDF: { 
-                    unit: 'px', 
-                    format: [595, 842], 
+                });
+                
+                const imgData = capturedCanvas.toDataURL('image/jpeg', 1.0);
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    unit: 'px',
+                    format: [595, 842],
                     orientation: 'portrait'
-                }
-            };
-            
-            try {
-                await html2pdf().set(opt).from(canvas).save();
+                });
+                
+                pdf.addImage(imgData, 'JPEG', 0, 0, 595, 842);
+                pdf.save(fileName);
+                
             } catch (error) {
                 console.error('PDF generation failed:', error);
                 alert('Failed to generate PDF. Please try again.');
             } finally {
-                // Restore styles
-                canvas.style.overflow = originalOverflow;
-                canvas.style.position = originalPosition;
+                exportBtn.textContent = originalBtnText;
+                exportBtn.disabled = false;
             }
         }
 
