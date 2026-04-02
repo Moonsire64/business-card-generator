@@ -425,7 +425,7 @@
             // which already accounts for padding, scrollbars, etc.
             const viewport = el.canvas.parentElement;
             el.canvas.style.zoom = ''; // reset first so it doesn't skew the measurement
-            const available = viewport.getBoundingClientRect().width;
+            const available = viewport.getBoundingClientRect().width - 1;
             const zoom = Math.min(1, available / CANVAS_W);
             el.canvas.style.zoom = zoom;
         }
