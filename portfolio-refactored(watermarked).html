@@ -12,7 +12,6 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            text-rendering: geometricPrecision;
         }
 
         :root {
@@ -31,45 +30,45 @@
             --canvas-height: 842px;
         }
 
-        html, body {
-            height: 100%;
-        }
-
         body {
             background: #000;
-            color: #fff;
             font-family: 'Inter', sans-serif;
             display: flex;
-            overflow: hidden;
-            height: 100vh;
+            min-height: 100vh;
         }
 
+        /* Sidebar - desktop and mobile */
         .sidebar {
-            width: 360px;
-            padding: 40px;
+            width: 320px;
+            padding: 30px;
             background: #000;
             border-right: 1px solid #222;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
             overflow-y: auto;
+            height: 100vh;
+            position: sticky;
+            top: 0;
         }
 
         .sidebar-title {
             font-weight: 900;
             color: var(--accent);
+            font-size: 12px;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
         }
 
         input, textarea {
             background: #111;
             border: 1px solid #222;
-            padding: 12px;
+            padding: 10px 12px;
             color: #fff;
             font-size: 13px;
             outline: none;
             border-radius: 4px;
-            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
-            font-weight: 400;
+            width: 100%;
         }
 
         input:focus, textarea:focus {
@@ -78,12 +77,12 @@
 
         textarea {
             resize: vertical;
-            min-height: 100px;
+            min-height: 80px;
         }
 
         .export-btn {
             margin-top: 10px;
-            padding: 20px;
+            padding: 15px;
             background: var(--accent);
             color: #fff;
             font-weight: 900;
@@ -91,36 +90,40 @@
             cursor: pointer;
             text-transform: uppercase;
             border-radius: 4px;
-            transition: opacity 0.2s;
-        }
-
-        .export-btn:hover {
-            opacity: 0.9;
+            font-size: 14px;
         }
 
         .export-btn:active {
             transform: scale(0.98);
         }
 
-        .viewport {
+        /* Preview area */
+        .preview-area {
             flex: 1;
             display: flex;
             align-items: center;
             justify-content: center;
             background: #080808;
-            overflow: auto;
             padding: 20px;
+            overflow: auto;
+        }
+
+        /* Canvas wrapper for mobile scaling */
+        .canvas-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         #canvas {
-            width: var(--canvas-width);
-            height: var(--canvas-height);
+            width: 595px;
+            height: 842px;
             background: var(--ink);
             display: grid;
-            grid-template-columns: var(--layout-rib-width) 1fr;
-            flex-shrink: 0;
+            grid-template-columns: 70px 1fr;
             position: relative;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            flex-shrink: 0;
         }
 
         .watermark {
@@ -128,9 +131,9 @@
             top: 45%;
             left: 60%;
             transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 180px;
+            font-size: 160px;
             font-weight: bold;
-            color: rgba(0, 0, 0, 0.11);
+            color: rgba(0, 0, 0, 0.1);
             pointer-events: none;
             white-space: nowrap;
             z-index: 1;
@@ -138,45 +141,12 @@
         }
 
         .rib {
-            background: linear-gradient(
-                180deg,
-                var(--accent-dark) 0px,
-                var(--accent-dark) 130px,
-                var(--accent) 130px,
-                var(--accent) 100%
-            );
+            background: linear-gradient(180deg, var(--accent-dark) 0px, var(--accent-dark) 130px, var(--accent) 130px, var(--accent) 100%);
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            box-shadow: inset -8px 0 20px rgba(0,0,0,0.4), inset 4px 0 10px rgba(255,255,255,0.1);
-        }
-
-        .rib::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-            pointer-events: none;
-            mix-blend-mode: overlay;
-        }
-
-        .rib::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(
-                90deg,
-                rgba(0,0,0,0.1) 0%,
-                transparent 20%,
-                transparent 80%,
-                rgba(0,0,0,0.2) 100%
-            );
-            pointer-events: none;
         }
 
         .rib-company {
@@ -190,24 +160,21 @@
             color: rgba(255,255,255,0.85);
             letter-spacing: 6px;
             font-weight: 700;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
         }
 
         .main {
             background: var(--cream);
-            height: var(--canvas-height);
+            height: 842px;
             display: flex;
             flex-direction: column;
             overflow: hidden;
-            position: relative;
         }
 
         .header {
-            height: var(--layout-header-height);
-            padding: 60px var(--layout-padding-h) 25px;
+            height: 180px;
+            padding: 60px 60px 25px;
             display: flex;
             flex-direction: column;
-            flex-shrink: 0;
         }
 
         #display-name {
@@ -216,8 +183,6 @@
             letter-spacing: -0.02em;
             text-transform: uppercase;
             color: var(--ink);
-            white-space: pre-wrap;
-            word-break: keep-all;
             font-weight: 900;
             font-stretch: 125%;
         }
@@ -228,7 +193,6 @@
             letter-spacing: 2px;
             color: var(--accent);
             margin-top: 15px;
-            display: block;
             font-weight: 700;
         }
 
@@ -236,13 +200,12 @@
             width: 40px;
             height: 2px;
             background: var(--ink);
-            margin: 20px var(--layout-padding-h) 0;
-            flex-shrink: 0;
+            margin: 20px 60px 0;
         }
 
         .body-content {
             flex: 1;
-            padding: var(--layout-padding-v) var(--layout-padding-h) 40px;
+            padding: 20px 60px 40px;
             margin-top: 25px;
             display: flex;
             flex-direction: column;
@@ -250,10 +213,9 @@
         }
 
         #bio-container {
-            height: var(--layout-bio-height);
+            height: 360px;
             border-left: 10px solid var(--ink);
             padding-left: 30px;
-            padding-bottom: 15px;
             overflow: hidden;
             margin-bottom: 40px;
         }
@@ -270,21 +232,18 @@
             font-weight: 400;
             color: #333;
             line-height: 1.4;
-            display: block;
         }
 
         #skills-container {
-            height: var(--layout-skills-height);
+            height: 110px;
             display: flex;
             align-items: flex-start;
-            padding-bottom: 10px;
         }
 
         .skill-list {
             display: flex;
             flex-wrap: wrap;
             gap: 6px;
-            width: 100%;
         }
 
         .skill-pill {
@@ -294,94 +253,56 @@
             color: var(--cream);
             padding: 5px 10px;
             text-transform: uppercase;
+            font-size: 9px;
             white-space: nowrap;
         }
 
         .footer {
-            height: var(--layout-footer-height);
+            height: 60px;
             background: var(--ink);
             color: var(--cream);
             display: grid;
             grid-template-columns: 1fr 1fr;
-            grid-template-rows: 1fr 1fr;
-            align-items: center;
-            justify-items: stretch;
-            padding: 8px var(--layout-padding-h);
+            padding: 8px 60px;
             font-family: 'JetBrains Mono';
             font-size: 8px;
-            flex-shrink: 0;
-            row-gap: 2px;
-            column-gap: 12px;
+            gap: 4px 12px;
         }
 
-        #display-footer-email {
-            grid-column: 1;
-            grid-row: 1;
-            text-align: left;
-            justify-self: start;
+        .footer > * {
             white-space: pre-wrap;
             word-break: break-word;
         }
 
-        #display-footer-linkedin {
-            grid-column: 1;
-            grid-row: 2;
-            text-align: left;
-            justify-self: start;
-            white-space: pre-wrap;
-            word-break: break-word;
-            color: var(--cream);
-            text-decoration: none;
-        }
+        #display-footer-email { grid-column: 1; grid-row: 1; text-align: left; }
+        #display-footer-linkedin { grid-column: 1; grid-row: 2; text-align: left; color: var(--cream); text-decoration: none; }
+        #display-footer-phone { grid-column: 2; grid-row: 1; text-align: right; }
+        #display-footer-location { grid-column: 2; grid-row: 2; text-align: right; }
 
-        #display-footer-linkedin:hover {
-            text-decoration: underline;
-        }
-
-        #display-footer-phone {
-            grid-column: 2;
-            grid-row: 1;
-            text-align: right;
-            justify-self: end;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        #display-footer-location {
-            grid-column: 2;
-            grid-row: 2;
-            text-align: right;
-            justify-self: end;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
-        /* Mobile: horizontal scroll to see full canvas */
-        @media (max-width: 768px) {
+        /* Mobile: make preview scrollable and properly sized */
+        @media (max-width: 750px) {
             body {
                 flex-direction: column;
-                height: auto;
-                overflow: auto;
             }
-
+            
             .sidebar {
                 width: 100%;
-                padding: 20px;
+                height: auto;
+                position: relative;
                 border-right: none;
                 border-bottom: 1px solid #222;
-                max-height: none;
-                overflow-y: visible;
-            }
-
-            .viewport {
-                overflow-x: auto;
-                overflow-y: visible;
-                justify-content: flex-start;
                 padding: 20px;
             }
             
-            #canvas {
-                margin: 0 auto;
+            .preview-area {
+                padding: 20px;
+                overflow-x: auto;
+                overflow-y: visible;
+                justify-content: flex-start;
+            }
+            
+            .canvas-wrapper {
+                min-width: 595px;
             }
         }
     </style>
@@ -389,160 +310,117 @@
 <body>
     <aside class="sidebar">
         <div class="sidebar-title">PROFILE</div>
-        <input type="text" id="input-name" placeholder="NAME" aria-label="Full name" value="" maxlength="30" autocomplete="name">
-        <input type="text" id="input-field" placeholder="FIELD" aria-label="Professional field" value="" maxlength="30" autocomplete="off">
-        <input type="text" id="input-company" placeholder="COMPANY" aria-label="Company name" value="" maxlength="50" autocomplete="organization">
-        <input type="email" id="input-email" placeholder="EMAIL" aria-label="Email address" value="" maxlength="65" autocomplete="email">
-        <input type="tel" id="input-phone" placeholder="PHONE" aria-label="Phone number" value="" maxlength="30" autocomplete="tel">
-        <input type="text" id="input-location" placeholder="LOCATION" aria-label="Location" value="" maxlength="30" autocomplete="address-level1">
-        <input type="text" id="input-linkedin" placeholder="LINKEDIN" aria-label="LinkedIn URL" value="" maxlength="65">
-        <textarea id="input-bio" placeholder="PROFESSIONAL STATEMENT" aria-label="Professional statement" rows="10" maxlength="600"></textarea>
-        <input type="text" id="input-skills" placeholder="SKILLS (comma-separated)" aria-label="Skills list" value="" maxlength="350">
-        <button class="export-btn" id="export-btn" aria-label="Export portfolio as PDF">EXPORT PDF</button>
+        <input type="text" id="input-name" placeholder="NAME" value="">
+        <input type="text" id="input-field" placeholder="FIELD" value="">
+        <input type="text" id="input-company" placeholder="COMPANY" value="">
+        <input type="email" id="input-email" placeholder="EMAIL" value="">
+        <input type="tel" id="input-phone" placeholder="PHONE" value="">
+        <input type="text" id="input-location" placeholder="LOCATION" value="">
+        <input type="text" id="input-linkedin" placeholder="LINKEDIN" value="">
+        <textarea id="input-bio" placeholder="PROFESSIONAL STATEMENT" rows="8"></textarea>
+        <input type="text" id="input-skills" placeholder="SKILLS (comma-separated)" value="">
+        <button class="export-btn" id="export-btn">EXPORT PDF</button>
     </aside>
 
-    <main class="viewport">
-        <div id="canvas">
-            <div class="watermark">DEMO</div>
-            <div class="rib">
-                <div class="rib-company" id="display-company"></div>
-            </div>
-            <div class="main">
-                <header class="header" id="header-box">
-                    <div id="display-name"></div>
-                    <span id="display-field"></span>
-                </header>
-                <div class="divider"></div>
-                <div class="body-content">
-                    <section id="bio-container">
-                        <span id="bio-lead"></span>
-                        <span id="bio-body"></span>
-                    </section>
-                    <section id="skills-container">
-                        <div class="skill-list" id="display-skills"></div>
-                    </section>
+    <div class="preview-area">
+        <div class="canvas-wrapper">
+            <div id="canvas">
+                <div class="watermark">DEMO</div>
+                <div class="rib">
+                    <div class="rib-company" id="display-company"></div>
                 </div>
-                <footer class="footer">
-                    <span id="display-footer-email"></span>
-                    <span id="display-footer-phone"></span>
-                    <a id="display-footer-linkedin" href=""></a>
-                    <span id="display-footer-location"></span>
-                </footer>
+                <div class="main">
+                    <header class="header">
+                        <div id="display-name"></div>
+                        <span id="display-field"></span>
+                    </header>
+                    <div class="divider"></div>
+                    <div class="body-content">
+                        <div id="bio-container">
+                            <span id="bio-lead"></span>
+                            <span id="bio-body"></span>
+                        </div>
+                        <div id="skills-container">
+                            <div class="skill-list" id="display-skills"></div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <span id="display-footer-email"></span>
+                        <span id="display-footer-phone"></span>
+                        <a id="display-footer-linkedin" href="#" target="_blank"></a>
+                        <span id="display-footer-location"></span>
+                    </div>
+                </div>
             </div>
         </div>
-    </main>
+    </div>
 
     <script>
-        const config = {
-            name: { minSize: 10, maxSize: 47, minWidth: 120, maxHeight: 110 },
-            bio: { minSize: 4, baseSize: 15, maxSize: 50, step: 0.5, containerHeight: 360, leadOffset: 2 },
-            skills: { minSize: 6, baseSize: 9, step: 0.5 },
-            sizing: { maxAttempts: 100 }
+        // Get DOM elements
+        const inputs = {
+            name: document.getElementById('input-name'),
+            field: document.getElementById('input-field'),
+            company: document.getElementById('input-company'),
+            email: document.getElementById('input-email'),
+            phone: document.getElementById('input-phone'),
+            location: document.getElementById('input-location'),
+            linkedin: document.getElementById('input-linkedin'),
+            bio: document.getElementById('input-bio'),
+            skills: document.getElementById('input-skills')
         };
 
-        const elements = {
-            inputs: {
-                name: document.getElementById('input-name'),
-                field: document.getElementById('input-field'),
-                company: document.getElementById('input-company'),
-                email: document.getElementById('input-email'),
-                phone: document.getElementById('input-phone'),
-                location: document.getElementById('input-location'),
-                linkedin: document.getElementById('input-linkedin'),
-                bio: document.getElementById('input-bio'),
-                skills: document.getElementById('input-skills'),
-            },
-            displays: {
-                name: document.getElementById('display-name'),
-                field: document.getElementById('display-field'),
-                company: document.getElementById('display-company'),
-                bioLead: document.getElementById('bio-lead'),
-                bioBody: document.getElementById('bio-body'),
-                skills: document.getElementById('display-skills'),
-                footerEmail: document.getElementById('display-footer-email'),
-                footerPhone: document.getElementById('display-footer-phone'),
-                footerLinkedin: document.getElementById('display-footer-linkedin'),
-                footerLocation: document.getElementById('display-footer-location'),
-            },
-            containers: {
-                header: document.getElementById('header-box'),
-                bio: document.getElementById('bio-container'),
-                skills: document.getElementById('skills-container'),
-            },
-            exportBtn: document.getElementById('export-btn'),
+        const displays = {
+            name: document.getElementById('display-name'),
+            field: document.getElementById('display-field'),
+            company: document.getElementById('display-company'),
+            bioLead: document.getElementById('bio-lead'),
+            bioBody: document.getElementById('bio-body'),
+            skills: document.getElementById('display-skills'),
+            footerEmail: document.getElementById('display-footer-email'),
+            footerPhone: document.getElementById('display-footer-phone'),
+            footerLinkedin: document.getElementById('display-footer-linkedin'),
+            footerLocation: document.getElementById('display-footer-location')
         };
 
-        function splitBioText(text) {
+        // Split bio into lead sentence and body
+        function splitBio(text) {
             if (!text) return ['', ''];
-            const sentences = text.split(/(?<=[.!?])\s+/);
-            const lead = sentences[0] || '';
-            const body = sentences.slice(1).join(' ').trim();
-            return [lead, body ? ' ' + body : ''];
+            const match = text.match(/^([^.!?]+[.!?])\s*(.*)$/s);
+            if (match) {
+                return [match[1].trim(), match[2].trim() ? ' ' + match[2].trim() : ''];
+            }
+            return [text, ''];
         }
 
-        function fitNameText() {
-            const nameEl = elements.displays.name;
-            const headerEl = elements.containers.header;
-
-            let size = config.name.minSize;
-            nameEl.style.fontSize = size + 'px';
-
-            while (
-                nameEl.scrollWidth <= (headerEl.clientWidth - config.name.minWidth) &&
-                nameEl.scrollHeight < config.name.maxHeight &&
-                size < config.name.maxSize
-            ) {
-                size++;
-                nameEl.style.fontSize = size + 'px';
+        // Update all displayed content
+        function updateDisplay() {
+            // Text content
+            displays.name.textContent = inputs.name.value.toUpperCase() || '';
+            displays.field.textContent = inputs.field.value.toUpperCase() || '';
+            displays.company.textContent = inputs.company.value.toUpperCase() || '';
+            
+            // Bio
+            const [lead, body] = splitBio(inputs.bio.value);
+            displays.bioLead.textContent = lead;
+            displays.bioBody.textContent = body;
+            
+            // Footer
+            displays.footerEmail.textContent = inputs.email.value || '';
+            displays.footerPhone.textContent = inputs.phone.value || '';
+            displays.footerLocation.textContent = inputs.location.value || '';
+            
+            const linkedinVal = inputs.linkedin.value.trim();
+            if (linkedinVal) {
+                displays.footerLinkedin.textContent = linkedinVal;
+                displays.footerLinkedin.href = linkedinVal.startsWith('http') ? linkedinVal : 'https://' + linkedinVal;
+            } else {
+                displays.footerLinkedin.textContent = '';
+                displays.footerLinkedin.href = '';
             }
-
-            nameEl.style.fontSize = (size - 1) + 'px';
-        }
-
-        function fitBioText() {
-            const bioLeadEl = elements.displays.bioLead;
-            const bioBodyEl = elements.displays.bioBody;
-            const bioContainerEl = elements.containers.bio;
-
-            const [lead, body] = splitBioText(elements.inputs.bio.value);
-
-            bioLeadEl.textContent = lead;
-            bioBodyEl.textContent = body;
-
-            if (!lead) return;
-
-            let size = config.bio.baseSize;
-            bioBodyEl.style.fontSize = size + 'px';
-            bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
-
-            let attempts = 0;
-            while (bioContainerEl.scrollHeight > config.bio.containerHeight && size > config.bio.minSize && attempts < config.sizing.maxAttempts) {
-                size -= config.bio.step;
-                bioBodyEl.style.fontSize = size + 'px';
-                bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
-                attempts++;
-            }
-
-            attempts = 0;
-            while (bioContainerEl.scrollHeight <= config.bio.containerHeight && size < config.bio.maxSize && attempts < config.sizing.maxAttempts) {
-                size += config.bio.step;
-                bioBodyEl.style.fontSize = size + 'px';
-                bioLeadEl.style.fontSize = (size + config.bio.leadOffset) + 'px';
-                attempts++;
-            }
-
-            bioBodyEl.style.fontSize = (size - config.bio.step) + 'px';
-            bioLeadEl.style.fontSize = (size + config.bio.leadOffset - config.bio.step) + 'px';
-        }
-
-        function fitSkillsText() {
-            const skillsListEl = elements.displays.skills;
-            const skillsContainerEl = elements.containers.skills;
-            const skillsInputEl = elements.inputs.skills;
-
-            skillsListEl.innerHTML = '';
-
-            const skillsText = skillsInputEl.value.trim();
+            
+            // Skills pills
+            displays.skills.innerHTML = '';
+            const skillsText = inputs.skills.value.trim();
             if (skillsText) {
                 skillsText.split(',').forEach(skill => {
                     const trimmed = skill.trim();
@@ -550,97 +428,83 @@
                         const pill = document.createElement('span');
                         pill.className = 'skill-pill';
                         pill.textContent = trimmed.toUpperCase();
-                        skillsListEl.appendChild(pill);
+                        displays.skills.appendChild(pill);
                     }
                 });
             }
-
-            let size = config.skills.baseSize;
-            skillsListEl.style.fontSize = size + 'px';
-
-            let attempts = 0;
-            while (skillsListEl.scrollHeight > skillsContainerEl.clientHeight && size > config.skills.minSize && attempts < config.sizing.maxAttempts) {
-                size -= config.skills.step;
-                skillsListEl.style.fontSize = size + 'px';
-                attempts++;
+            
+            // Dynamic font sizing for name
+            const nameEl = displays.name;
+            let fontSize = 32;
+            nameEl.style.fontSize = fontSize + 'px';
+            while (nameEl.scrollWidth > 475 && fontSize > 20) {
+                fontSize--;
+                nameEl.style.fontSize = fontSize + 'px';
+            }
+            while (nameEl.scrollWidth < 400 && fontSize < 47) {
+                fontSize++;
+                nameEl.style.fontSize = fontSize + 'px';
+            }
+            
+            // Dynamic bio sizing
+            const bioContainer = document.getElementById('bio-container');
+            const bioLeadEl = displays.bioLead;
+            const bioBodyEl = displays.bioBody;
+            
+            if (lead) {
+                let bodySize = 14;
+                bioBodyEl.style.fontSize = bodySize + 'px';
+                bioLeadEl.style.fontSize = (bodySize + 3) + 'px';
+                
+                while (bioContainer.scrollHeight > 360 && bodySize > 9) {
+                    bodySize -= 0.5;
+                    bioBodyEl.style.fontSize = bodySize + 'px';
+                    bioLeadEl.style.fontSize = (bodySize + 3) + 'px';
+                }
             }
         }
 
-        function update() {
-            const nameInput = elements.inputs.name.value;
-
-            elements.displays.name.textContent = nameInput.toUpperCase() || '';
-            elements.displays.field.textContent = elements.inputs.field.value.toUpperCase() || '';
-            elements.displays.company.textContent = elements.inputs.company.value.toUpperCase() || '';
-
-            const emailVal = elements.inputs.email.value || '';
-            const phoneVal = elements.inputs.phone.value || '';
-            const linkedinVal = elements.inputs.linkedin.value || '';
-            const locationVal = elements.inputs.location.value || '';
-
-            elements.displays.footerEmail.textContent = emailVal;
-            elements.displays.footerPhone.textContent = phoneVal;
-            
-            elements.displays.footerLinkedin.textContent = linkedinVal;
-            elements.displays.footerLinkedin.href = linkedinVal ? (linkedinVal.startsWith('http') ? linkedinVal : `https://${linkedinVal}`) : '';
-            elements.displays.footerLinkedin.target = '_blank';
-            elements.displays.footerLinkedin.rel = 'noopener noreferrer';
-            
-            elements.displays.footerLocation.textContent = locationVal;
-
-            fitNameText();
-            fitBioText();
-            fitSkillsText();
+        // Debounced update
+        let updateTimeout;
+        function handleInput() {
+            clearTimeout(updateTimeout);
+            updateTimeout = setTimeout(updateDisplay, 50);
         }
 
-        let debounceTimer;
-        function debouncedUpdate() {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(update, 100);
-        }
+        // Add event listeners
+        Object.values(inputs).forEach(input => {
+            if (input) input.addEventListener('input', handleInput);
+        });
 
+        // PDF Generation - FIXED: no white line
         async function generatePDF() {
-            const name = elements.inputs.name.value?.trim() || 'User';
-            if (!name || !elements.inputs.field.value?.trim()) {
-                alert('Please fill in at least Name and Field');
+            const name = inputs.name.value.trim();
+            if (!name || !inputs.field.value.trim()) {
+                alert('Please fill in Name and Field');
                 return;
             }
-
-            const fileName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
-            const canvas = document.getElementById('canvas');
             
-            // Show loading state
-            const exportBtn = elements.exportBtn;
-            const originalBtnText = exportBtn.textContent;
-            exportBtn.textContent = 'GENERATING PDF...';
-            exportBtn.disabled = true;
+            const btn = document.getElementById('export-btn');
+            const originalText = btn.textContent;
+            btn.textContent = 'GENERATING...';
+            btn.disabled = true;
             
             try {
-                // Force canvas to exact dimensions and remove any margins/padding issues
-                const originalWidth = canvas.style.width;
-                const originalHeight = canvas.style.height;
-                canvas.style.width = '595px';
-                canvas.style.height = '842px';
+                const canvas = document.getElementById('canvas');
                 
-                // Wait for reflow
-                await new Promise(resolve => setTimeout(resolve, 50));
-                
+                // Capture with html2canvas at high resolution
                 const capturedCanvas = await html2canvas(canvas, {
-                    scale: 2,
-                    useCORS: true,
-                    logging: false,
+                    scale: 2.5,
                     backgroundColor: '#f3f0e5',
+                    logging: false,
+                    useCORS: false,
                     windowWidth: 595,
-                    windowHeight: 842,
-                    width: 595,
-                    height: 842
+                    windowHeight: 842
                 });
                 
-                // Restore original styles
-                canvas.style.width = originalWidth;
-                canvas.style.height = originalHeight;
-                
+                // Get image data and crop exactly to 595x842 to remove any white line
                 const imgData = capturedCanvas.toDataURL('image/jpeg', 1.0);
+                
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF({
                     unit: 'px',
@@ -648,52 +512,24 @@
                     orientation: 'portrait'
                 });
                 
-                // Add image at exact dimensions - no white line at bottom
-                pdf.addImage(imgData, 'JPEG', 0, 0, 595, 842, undefined, 'FAST');
-                pdf.save(fileName);
+                // Add image - use exact dimensions to fill page completely
+                pdf.addImage(imgData, 'JPEG', 0, 0, 595, 842, null, 'FAST');
+                pdf.save(name.replace(/[^a-z0-9]/gi, '_') + '_Portfolio.pdf');
                 
             } catch (error) {
-                console.error('PDF generation failed:', error);
-                alert('Failed to generate PDF. Please try again.');
+                console.error(error);
+                alert('PDF generation failed. Please try again.');
             } finally {
-                exportBtn.textContent = originalBtnText;
-                exportBtn.disabled = false;
+                btn.textContent = originalText;
+                btn.disabled = false;
             }
         }
 
-        function initializeApp() {
-            const requiredElements = [
-                'input-name', 'input-field', 'input-bio', 'input-skills',
-                'display-name', 'display-field', 'header-box', 'bio-container',
-                'skills-container', 'export-btn', 'canvas'
-            ];
-
-            for (const id of requiredElements) {
-                if (!document.getElementById(id)) {
-                    console.error(`Required element not found: #${id}`);
-                    return false;
-                }
-            }
-
-            Object.values(elements.inputs).forEach(input => {
-                input.addEventListener('input', debouncedUpdate);
-            });
-
-            elements.exportBtn.addEventListener('click', generatePDF);
-            return true;
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
-                if (initializeApp()) {
-                    update();
-                }
-            });
-        } else {
-            if (initializeApp()) {
-                update();
-            }
-        }
+        // Export button
+        document.getElementById('export-btn').addEventListener('click', generatePDF);
+        
+        // Initial update
+        updateDisplay();
     </script>
 </body>
 </html>
