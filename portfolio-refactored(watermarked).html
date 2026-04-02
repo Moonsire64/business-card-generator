@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Portfolio Builder | One-Pager</title>
+    <title>Portfolio One-Pager Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=Inter:wght@400;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
@@ -57,8 +57,6 @@
         .sidebar-title {
             font-weight: 900;
             color: var(--accent);
-            font-size: 13px;
-            letter-spacing: 1px;
         }
 
         input, textarea {
@@ -69,7 +67,7 @@
             font-size: 13px;
             outline: none;
             border-radius: 4px;
-            font-family: 'Inter', sans-serif;
+            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
             font-weight: 400;
         }
 
@@ -113,15 +111,21 @@
             padding: 20px;
         }
 
+        /* Canvas wrapper for mobile scaling */
+        .canvas-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         #canvas {
             width: var(--canvas-width);
             height: var(--canvas-height);
             background: var(--ink);
             display: grid;
             grid-template-columns: var(--layout-rib-width) 1fr;
-            flex-shrink: 0;
             position: relative;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
         }
 
         .watermark {
@@ -357,7 +361,7 @@
             word-break: break-word;
         }
 
-        /* MOBILE FIXES: preview container scales properly, canvas fits within viewport */
+        /* MOBILE FIXES - canvas scales to fit screen width while maintaining proportions */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -376,61 +380,106 @@
 
             .viewport {
                 padding: 20px;
-                overflow-x: auto;
-                overflow-y: visible;
-                min-height: auto;
+                overflow: visible;
             }
 
-            /* Canvas stays exactly 595x842, but container scrolls horizontally if needed */
+            /* Scale canvas to fit screen width, maintain aspect ratio */
+            .canvas-wrapper {
+                width: 100%;
+                display: flex;
+                justify-content: center;
+            }
+
             #canvas {
-                width: 595px;
-                height: 842px;
-                margin: 0 auto;
-                transform: scale(1);
-                box-shadow: 0 5px 20px rgba(0,0,0,0.4);
+                width: 100%;
+                height: auto;
+                aspect-ratio: 595 / 842;
+                max-width: 500px;
+                transform: none;
             }
 
-            /* Internal layout stays intact */
+            /* Internal elements need to scale with relative units */
             .main {
-                height: 842px;
+                height: 100%;
             }
-            
+
             .header {
-                padding: 60px var(--layout-padding-h) 25px !important;
-                height: var(--layout-header-height) !important;
+                padding: 10% var(--layout-padding-h) 3% !important;
+                height: auto !important;
+                min-height: 130px;
+            }
+
+            #display-name {
+                font-size: clamp(18px, 6vw, 40px) !important;
+            }
+
+            #display-field {
+                font-size: clamp(9px, 3vw, 13px) !important;
+                margin-top: 8px !important;
             }
 
             .divider {
-                margin: 20px var(--layout-padding-h) 0 !important;
+                margin: 3% var(--layout-padding-h) 0 !important;
+                width: 40px;
             }
 
             .body-content {
-                padding: var(--layout-padding-v) var(--layout-padding-h) 40px !important;
-                margin-top: 25px !important;
+                padding: 2% var(--layout-padding-h) 5% !important;
+                margin-top: 3% !important;
+                flex: 1;
             }
 
             #bio-container {
-                height: var(--layout-bio-height) !important;
-                margin-bottom: 40px !important;
+                height: auto !important;
+                min-height: 180px;
+                margin-bottom: 5% !important;
+                overflow: visible !important;
+            }
+
+            #bio-lead {
+                font-size: clamp(11px, 3.5vw, 18px) !important;
+            }
+
+            #bio-body {
+                font-size: clamp(10px, 3vw, 14px) !important;
             }
 
             #skills-container {
-                height: var(--layout-skills-height) !important;
+                height: auto !important;
+                min-height: 80px;
+                padding-bottom: 10px !important;
+            }
+
+            .skill-list {
+                gap: 5px;
+            }
+
+            .skill-pill {
+                font-size: clamp(7px, 2.5vw, 9px) !important;
+                padding: 4px 8px;
             }
 
             .footer {
-                height: var(--layout-footer-height) !important;
+                height: auto !important;
                 padding: 8px var(--layout-padding-h) !important;
+                font-size: clamp(6px, 2vw, 8px) !important;
+                gap: 4px;
+            }
+
+            .watermark {
+                display: none;
             }
         }
 
-        /* Small devices: ensure horizontal scroll is comfortable */
-        @media (max-width: 640px) {
-            .viewport {
-                padding: 15px;
+        /* Desktop remains unchanged */
+        @media (min-width: 769px) {
+            .canvas-wrapper {
+                display: block;
             }
             #canvas {
-                margin: 0 auto;
+                width: var(--canvas-width);
+                height: var(--canvas-height);
+                aspect-ratio: auto;
             }
         }
     </style>
@@ -451,32 +500,34 @@
     </aside>
 
     <main class="viewport">
-        <div id="canvas">
-            <div class="watermark">DEMO</div>
-            <div class="rib">
-                <div class="rib-company" id="display-company"></div>
-            </div>
-            <div class="main">
-                <header class="header" id="header-box">
-                    <div id="display-name"></div>
-                    <span id="display-field"></span>
-                </header>
-                <div class="divider"></div>
-                <div class="body-content">
-                    <section id="bio-container">
-                        <span id="bio-lead"></span>
-                        <span id="bio-body"></span>
-                    </section>
-                    <section id="skills-container">
-                        <div class="skill-list" id="display-skills"></div>
-                    </section>
+        <div class="canvas-wrapper">
+            <div id="canvas">
+                <div class="watermark">DEMO</div>
+                <div class="rib">
+                    <div class="rib-company" id="display-company"></div>
                 </div>
-                <footer class="footer">
-                    <span id="display-footer-email"></span>
-                    <span id="display-footer-phone"></span>
-                    <a id="display-footer-linkedin" href=""></a>
-                    <span id="display-footer-location"></span>
-                </footer>
+                <div class="main">
+                    <header class="header" id="header-box">
+                        <div id="display-name"></div>
+                        <span id="display-field"></span>
+                    </header>
+                    <div class="divider"></div>
+                    <div class="body-content">
+                        <section id="bio-container">
+                            <span id="bio-lead"></span>
+                            <span id="bio-body"></span>
+                        </section>
+                        <section id="skills-container">
+                            <div class="skill-list" id="display-skills"></div>
+                        </section>
+                    </div>
+                    <footer class="footer">
+                        <span id="display-footer-email"></span>
+                        <span id="display-footer-phone"></span>
+                        <a id="display-footer-linkedin" href=""></a>
+                        <span id="display-footer-location"></span>
+                    </footer>
+                </div>
             </div>
         </div>
     </main>
@@ -656,29 +707,25 @@
             }
 
             const fileName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
-            const canvas = document.getElementById('canvas');
             
-            if (!canvas) {
-                console.error('Canvas element not found');
-                return;
-            }
-
-            // Mobile fix: Store original styles, ensure proper dimensions for PDF capture
-            const originalPosition = canvas.style.position;
-            const originalTransform = canvas.style.transform;
-            const originalWidth = canvas.style.width;
-            const originalHeight = canvas.style.height;
+            // For PDF, we need to capture at exact A4 dimensions
+            // Create a temporary clone of the canvas with fixed dimensions
+            const originalCanvas = document.getElementById('canvas');
+            const wrapper = document.querySelector('.canvas-wrapper');
             
-            // Force exact dimensions for PDF capture (prevents splitting into 2 pages)
-            canvas.style.width = '595px';
-            canvas.style.height = '842px';
-            canvas.style.position = 'relative';
-            canvas.style.transform = 'none';
+            // Store original styles
+            const originalCanvasWidth = originalCanvas.style.width;
+            const originalCanvasHeight = originalCanvas.style.height;
+            const originalWrapperDisplay = wrapper.style.display;
             
-            // Small delay to ensure styles apply
+            // Temporarily set canvas to exact A4 dimensions for PDF capture
+            originalCanvas.style.width = '595px';
+            originalCanvas.style.height = '842px';
+            wrapper.style.display = 'block';
+            
+            // Wait for reflow
             setTimeout(() => {
                 try {
-                    // Use html2pdf with precise settings for single-page A4 output
                     const opt = {
                         margin: 0,
                         filename: fileName,
@@ -688,39 +735,35 @@
                             useCORS: true,
                             logging: false,
                             letterRendering: true,
-                            backgroundColor: null
+                            backgroundColor: '#f3f0e5'
                         },
                         jsPDF: { 
                             unit: 'px', 
                             format: [595, 842], 
-                            orientation: 'portrait',
-                            compress: true
+                            orientation: 'portrait'
                         }
                     };
                     
-                    html2pdf().set(opt).from(canvas).save().then(() => {
-                        // Restore original styles after PDF generation
-                        canvas.style.position = originalPosition;
-                        canvas.style.transform = originalTransform;
-                        canvas.style.width = originalWidth;
-                        canvas.style.height = originalHeight;
+                    html2pdf().set(opt).from(originalCanvas).save().then(() => {
+                        // Restore styles
+                        originalCanvas.style.width = originalCanvasWidth;
+                        originalCanvas.style.height = originalCanvasHeight;
+                        wrapper.style.display = originalWrapperDisplay;
                     }).catch((error) => {
                         console.error('PDF generation failed:', error);
-                        canvas.style.position = originalPosition;
-                        canvas.style.transform = originalTransform;
-                        canvas.style.width = originalWidth;
-                        canvas.style.height = originalHeight;
+                        originalCanvas.style.width = originalCanvasWidth;
+                        originalCanvas.style.height = originalCanvasHeight;
+                        wrapper.style.display = originalWrapperDisplay;
                         alert('Failed to generate PDF. Please try again.');
                     });
                 } catch (error) {
                     console.error('PDF generation error:', error);
-                    canvas.style.position = originalPosition;
-                    canvas.style.transform = originalTransform;
-                    canvas.style.width = originalWidth;
-                    canvas.style.height = originalHeight;
+                    originalCanvas.style.width = originalCanvasWidth;
+                    originalCanvas.style.height = originalCanvasHeight;
+                    wrapper.style.display = originalWrapperDisplay;
                     alert('Failed to generate PDF. Please try again.');
                 }
-            }, 50);
+            }, 100);
         }
 
         function initializeApp() {
@@ -743,10 +786,10 @@
 
             elements.exportBtn.addEventListener('click', generatePDF);
             
-            // Force initial update after a short delay to ensure layout is calculated
-            setTimeout(() => {
-                update();
-            }, 100);
+            // Handle window resize to re-fit text on mobile orientation change
+            window.addEventListener('resize', () => {
+                setTimeout(update, 50);
+            });
             
             return true;
         }
