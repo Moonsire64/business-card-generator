@@ -111,8 +111,8 @@
             padding: 20px;
         }
 
-        /* Canvas wrapper for mobile scaling */
-        .canvas-wrapper {
+        /* Container that handles scaling for mobile preview ONLY */
+        .preview-container {
             display: flex;
             align-items: center;
             justify-content: center;
@@ -361,7 +361,7 @@
             word-break: break-word;
         }
 
-        /* MOBILE FIXES - canvas scales to fit screen width while maintaining proportions */
+        /* MOBILE: scale preview container, NOT the canvas itself */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -380,106 +380,28 @@
 
             .viewport {
                 padding: 20px;
-                overflow: visible;
             }
 
-            /* Scale canvas to fit screen width, maintain aspect ratio */
-            .canvas-wrapper {
-                width: 100%;
-                display: flex;
-                justify-content: center;
+            /* Scale the preview container - canvas stays at native 595x842 but container scales it */
+            .preview-container {
+                transform: scale(0.65);
+                transform-origin: center center;
+                max-width: 100%;
+                margin: 0 auto;
             }
-
-            #canvas {
-                width: 100%;
-                height: auto;
-                aspect-ratio: 595 / 842;
-                max-width: 500px;
-                transform: none;
-            }
-
-            /* Internal elements need to scale with relative units */
-            .main {
-                height: 100%;
-            }
-
-            .header {
-                padding: 10% var(--layout-padding-h) 3% !important;
-                height: auto !important;
-                min-height: 130px;
-            }
-
-            #display-name {
-                font-size: clamp(18px, 6vw, 40px) !important;
-            }
-
-            #display-field {
-                font-size: clamp(9px, 3vw, 13px) !important;
-                margin-top: 8px !important;
-            }
-
-            .divider {
-                margin: 3% var(--layout-padding-h) 0 !important;
-                width: 40px;
-            }
-
-            .body-content {
-                padding: 2% var(--layout-padding-h) 5% !important;
-                margin-top: 3% !important;
-                flex: 1;
-            }
-
-            #bio-container {
-                height: auto !important;
-                min-height: 180px;
-                margin-bottom: 5% !important;
-                overflow: visible !important;
-            }
-
-            #bio-lead {
-                font-size: clamp(11px, 3.5vw, 18px) !important;
-            }
-
-            #bio-body {
-                font-size: clamp(10px, 3vw, 14px) !important;
-            }
-
-            #skills-container {
-                height: auto !important;
-                min-height: 80px;
-                padding-bottom: 10px !important;
-            }
-
-            .skill-list {
-                gap: 5px;
-            }
-
-            .skill-pill {
-                font-size: clamp(7px, 2.5vw, 9px) !important;
-                padding: 4px 8px;
-            }
-
-            .footer {
-                height: auto !important;
-                padding: 8px var(--layout-padding-h) !important;
-                font-size: clamp(6px, 2vw, 8px) !important;
-                gap: 4px;
-            }
-
-            .watermark {
-                display: none;
+            
+            /* For very small screens, scale more */
+            @media (max-width: 480px) {
+                .preview-container {
+                    transform: scale(0.5);
+                }
             }
         }
 
-        /* Desktop remains unchanged */
+        /* Desktop: no scaling */
         @media (min-width: 769px) {
-            .canvas-wrapper {
-                display: block;
-            }
-            #canvas {
-                width: var(--canvas-width);
-                height: var(--canvas-height);
-                aspect-ratio: auto;
+            .preview-container {
+                transform: none;
             }
         }
     </style>
@@ -500,7 +422,7 @@
     </aside>
 
     <main class="viewport">
-        <div class="canvas-wrapper">
+        <div class="preview-container">
             <div id="canvas">
                 <div class="watermark">DEMO</div>
                 <div class="rib">
@@ -699,7 +621,7 @@
             debounceTimer = setTimeout(update, 100);
         }
 
-        function generatePDF() {
+        async function generatePDF() {
             const name = elements.inputs.name.value?.trim() || 'User';
             if (!name || !elements.inputs.field.value?.trim()) {
                 alert('Please fill in at least Name and Field');
@@ -707,63 +629,50 @@
             }
 
             const fileName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
+            const canvas = document.getElementById('canvas');
             
-            // For PDF, we need to capture at exact A4 dimensions
-            // Create a temporary clone of the canvas with fixed dimensions
-            const originalCanvas = document.getElementById('canvas');
-            const wrapper = document.querySelector('.canvas-wrapper');
+            // CRITICAL: Temporarily remove scaling transform for PDF capture
+            const container = document.querySelector('.preview-container');
+            const originalTransform = container.style.transform;
+            const originalMaxWidth = container.style.maxWidth;
             
-            // Store original styles
-            const originalCanvasWidth = originalCanvas.style.width;
-            const originalCanvasHeight = originalCanvas.style.height;
-            const originalWrapperDisplay = wrapper.style.display;
-            
-            // Temporarily set canvas to exact A4 dimensions for PDF capture
-            originalCanvas.style.width = '595px';
-            originalCanvas.style.height = '842px';
-            wrapper.style.display = 'block';
+            // Remove scale transform so PDF captures at full 595x842
+            container.style.transform = 'none';
+            container.style.maxWidth = 'none';
             
             // Wait for reflow
-            setTimeout(() => {
-                try {
-                    const opt = {
-                        margin: 0,
-                        filename: fileName,
-                        image: { type: 'jpeg', quality: 0.98 },
-                        html2canvas: { 
-                            scale: 3, 
-                            useCORS: true,
-                            logging: false,
-                            letterRendering: true,
-                            backgroundColor: '#f3f0e5'
-                        },
-                        jsPDF: { 
-                            unit: 'px', 
-                            format: [595, 842], 
-                            orientation: 'portrait'
-                        }
-                    };
-                    
-                    html2pdf().set(opt).from(originalCanvas).save().then(() => {
-                        // Restore styles
-                        originalCanvas.style.width = originalCanvasWidth;
-                        originalCanvas.style.height = originalCanvasHeight;
-                        wrapper.style.display = originalWrapperDisplay;
-                    }).catch((error) => {
-                        console.error('PDF generation failed:', error);
-                        originalCanvas.style.width = originalCanvasWidth;
-                        originalCanvas.style.height = originalCanvasHeight;
-                        wrapper.style.display = originalWrapperDisplay;
-                        alert('Failed to generate PDF. Please try again.');
-                    });
-                } catch (error) {
-                    console.error('PDF generation error:', error);
-                    originalCanvas.style.width = originalCanvasWidth;
-                    originalCanvas.style.height = originalCanvasHeight;
-                    wrapper.style.display = originalWrapperDisplay;
-                    alert('Failed to generate PDF. Please try again.');
-                }
-            }, 100);
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            try {
+                const opt = {
+                    margin: 0,
+                    filename: fileName,
+                    image: { type: 'jpeg', quality: 0.98 },
+                    html2canvas: { 
+                        scale: 3, 
+                        useCORS: true,
+                        logging: false,
+                        letterRendering: true
+                    },
+                    jsPDF: { 
+                        unit: 'px', 
+                        format: [595, 842], 
+                        orientation: 'portrait'
+                    }
+                };
+                
+                await html2pdf().set(opt).from(canvas).save();
+                
+                // Restore transform after PDF is saved
+                container.style.transform = originalTransform;
+                container.style.maxWidth = originalMaxWidth;
+                
+            } catch (error) {
+                console.error('PDF generation failed:', error);
+                container.style.transform = originalTransform;
+                container.style.maxWidth = originalMaxWidth;
+                alert('Failed to generate PDF. Please try again.');
+            }
         }
 
         function initializeApp() {
@@ -785,12 +694,6 @@
             });
 
             elements.exportBtn.addEventListener('click', generatePDF);
-            
-            // Handle window resize to re-fit text on mobile orientation change
-            window.addEventListener('resize', () => {
-                setTimeout(update, 50);
-            });
-            
             return true;
         }
 
