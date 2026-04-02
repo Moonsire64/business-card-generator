@@ -111,19 +111,13 @@
             padding: 20px;
         }
 
-        /* Container that handles scaling for mobile preview ONLY */
-        .preview-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
         #canvas {
             width: var(--canvas-width);
             height: var(--canvas-height);
             background: var(--ink);
             display: grid;
             grid-template-columns: var(--layout-rib-width) 1fr;
+            flex-shrink: 0;
             position: relative;
             box-shadow: 0 20px 35px rgba(0,0,0,0.5);
         }
@@ -361,7 +355,7 @@
             word-break: break-word;
         }
 
-        /* MOBILE: scale preview container, NOT the canvas itself */
+        /* MOBILE: just make viewport scrollable, keep canvas at native size */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -380,28 +374,13 @@
 
             .viewport {
                 padding: 20px;
+                overflow: auto;
+                justify-content: flex-start;
             }
 
-            /* Scale the preview container - canvas stays at native 595x842 but container scales it */
-            .preview-container {
-                transform: scale(0.65);
-                transform-origin: center center;
-                max-width: 100%;
+            /* Canvas stays at full 595x842, viewport scrolls - exactly like original */
+            #canvas {
                 margin: 0 auto;
-            }
-            
-            /* For very small screens, scale more */
-            @media (max-width: 480px) {
-                .preview-container {
-                    transform: scale(0.5);
-                }
-            }
-        }
-
-        /* Desktop: no scaling */
-        @media (min-width: 769px) {
-            .preview-container {
-                transform: none;
             }
         }
     </style>
@@ -422,34 +401,32 @@
     </aside>
 
     <main class="viewport">
-        <div class="preview-container">
-            <div id="canvas">
-                <div class="watermark">DEMO</div>
-                <div class="rib">
-                    <div class="rib-company" id="display-company"></div>
+        <div id="canvas">
+            <div class="watermark">DEMO</div>
+            <div class="rib">
+                <div class="rib-company" id="display-company"></div>
+            </div>
+            <div class="main">
+                <header class="header" id="header-box">
+                    <div id="display-name"></div>
+                    <span id="display-field"></span>
+                </header>
+                <div class="divider"></div>
+                <div class="body-content">
+                    <section id="bio-container">
+                        <span id="bio-lead"></span>
+                        <span id="bio-body"></span>
+                    </section>
+                    <section id="skills-container">
+                        <div class="skill-list" id="display-skills"></div>
+                    </section>
                 </div>
-                <div class="main">
-                    <header class="header" id="header-box">
-                        <div id="display-name"></div>
-                        <span id="display-field"></span>
-                    </header>
-                    <div class="divider"></div>
-                    <div class="body-content">
-                        <section id="bio-container">
-                            <span id="bio-lead"></span>
-                            <span id="bio-body"></span>
-                        </section>
-                        <section id="skills-container">
-                            <div class="skill-list" id="display-skills"></div>
-                        </section>
-                    </div>
-                    <footer class="footer">
-                        <span id="display-footer-email"></span>
-                        <span id="display-footer-phone"></span>
-                        <a id="display-footer-linkedin" href=""></a>
-                        <span id="display-footer-location"></span>
-                    </footer>
-                </div>
+                <footer class="footer">
+                    <span id="display-footer-email"></span>
+                    <span id="display-footer-phone"></span>
+                    <a id="display-footer-linkedin" href=""></a>
+                    <span id="display-footer-location"></span>
+                </footer>
             </div>
         </div>
     </main>
@@ -621,7 +598,7 @@
             debounceTimer = setTimeout(update, 100);
         }
 
-        async function generatePDF() {
+        function generatePDF() {
             const name = elements.inputs.name.value?.trim() || 'User';
             if (!name || !elements.inputs.field.value?.trim()) {
                 alert('Please fill in at least Name and Field');
@@ -631,48 +608,50 @@
             const fileName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
             const canvas = document.getElementById('canvas');
             
-            // CRITICAL: Temporarily remove scaling transform for PDF capture
-            const container = document.querySelector('.preview-container');
-            const originalTransform = container.style.transform;
-            const originalMaxWidth = container.style.maxWidth;
-            
-            // Remove scale transform so PDF captures at full 595x842
-            container.style.transform = 'none';
-            container.style.maxWidth = 'none';
-            
-            // Wait for reflow
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-            try {
-                const opt = {
-                    margin: 0,
-                    filename: fileName,
-                    image: { type: 'jpeg', quality: 0.98 },
-                    html2canvas: { 
-                        scale: 3, 
-                        useCORS: true,
-                        logging: false,
-                        letterRendering: true
-                    },
-                    jsPDF: { 
-                        unit: 'px', 
-                        format: [595, 842], 
-                        orientation: 'portrait'
-                    }
-                };
-                
-                await html2pdf().set(opt).from(canvas).save();
-                
-                // Restore transform after PDF is saved
-                container.style.transform = originalTransform;
-                container.style.maxWidth = originalMaxWidth;
-                
-            } catch (error) {
-                console.error('PDF generation failed:', error);
-                container.style.transform = originalTransform;
-                container.style.maxWidth = originalMaxWidth;
-                alert('Failed to generate PDF. Please try again.');
+            if (!canvas) {
+                console.error('Canvas element not found');
+                return;
             }
+
+            // Force canvas to its native dimensions for PDF capture
+            const originalWidth = canvas.style.width;
+            const originalHeight = canvas.style.height;
+            canvas.style.width = '595px';
+            canvas.style.height = '842px';
+            
+            // Use html2pdf with proper settings to capture the ENTIRE canvas
+            const opt = {
+                margin: 0,
+                filename: fileName,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 3, 
+                    useCORS: true,
+                    logging: false,
+                    letterRendering: true,
+                    windowWidth: 595,
+                    windowHeight: 842
+                },
+                jsPDF: { 
+                    unit: 'px', 
+                    format: [595, 842], 
+                    orientation: 'portrait'
+                }
+            };
+            
+            // Small delay to ensure style is applied
+            setTimeout(() => {
+                html2pdf().set(opt).from(canvas).save().then(() => {
+                    // Restore original styles
+                    canvas.style.width = originalWidth;
+                    canvas.style.height = originalHeight;
+                }).catch((error) => {
+                    console.error('PDF generation failed:', error);
+                    canvas.style.width = originalWidth;
+                    canvas.style.height = originalHeight;
+                    alert('Failed to generate PDF. Please try again.');
+                });
+            }, 100);
         }
 
         function initializeApp() {
