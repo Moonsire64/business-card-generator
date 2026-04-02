@@ -19,15 +19,7 @@
             --ink: #0a0a0a;
             --accent: #ff3e00;
             --accent-dark: #b32b00;
-            --layout-header-height: 180px;
-            --layout-bio-height: 360px;
-            --layout-skills-height: 110px;
-            --layout-footer-height: 60px;
-            --layout-rib-width: 70px;
             --layout-padding-h: 60px;
-            --layout-padding-v: 20px;
-            --canvas-width: 595px;
-            --canvas-height: 842px;
         }
 
         body {
@@ -37,7 +29,6 @@
             min-height: 100vh;
         }
 
-        /* Sidebar - desktop and mobile */
         .sidebar {
             width: 320px;
             padding: 30px;
@@ -54,9 +45,8 @@
 
         .sidebar-title {
             font-weight: 900;
-            color: var(--accent);
+            color: #ff3e00;
             font-size: 12px;
-            letter-spacing: 1px;
             margin-bottom: 5px;
         }
 
@@ -72,7 +62,7 @@
         }
 
         input:focus, textarea:focus {
-            border-color: var(--accent);
+            border-color: #ff3e00;
         }
 
         textarea {
@@ -83,7 +73,7 @@
         .export-btn {
             margin-top: 10px;
             padding: 15px;
-            background: var(--accent);
+            background: #ff3e00;
             color: #fff;
             font-weight: 900;
             border: none;
@@ -93,11 +83,6 @@
             font-size: 14px;
         }
 
-        .export-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Preview area */
         .preview-area {
             flex: 1;
             display: flex;
@@ -108,45 +93,41 @@
             overflow: auto;
         }
 
-        /* Canvas wrapper for mobile scaling */
+        /* CRITICAL: Fixed canvas size, wrapper handles mobile scroll */
         .canvas-wrapper {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: block;
         }
 
         #canvas {
             width: 595px;
             height: 842px;
-            background: var(--ink);
+            background: #0a0a0a;
             display: grid;
             grid-template-columns: 70px 1fr;
-            position: relative;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            flex-shrink: 0;
+            position: relative;
         }
 
         .watermark {
             position: absolute;
-            top: 45%;
-            left: 60%;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 160px;
+            font-size: 140px;
             font-weight: bold;
-            color: rgba(0, 0, 0, 0.1);
+            color: rgba(0, 0, 0, 0.08);
             pointer-events: none;
             white-space: nowrap;
             z-index: 1;
-            font-family: 'Helvetica', sans-serif;
+            font-family: Arial;
         }
 
         .rib {
-            background: linear-gradient(180deg, var(--accent-dark) 0px, var(--accent-dark) 130px, var(--accent) 130px, var(--accent) 100%);
-            position: relative;
+            background: linear-gradient(180deg, #b32b00 0px, #b32b00 130px, #ff3e00 130px, #ff3e00 100%);
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            position: relative;
         }
 
         .rib-company {
@@ -163,18 +144,15 @@
         }
 
         .main {
-            background: var(--cream);
+            background: #f3f0e5;
             height: 842px;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
         .header {
             height: 180px;
             padding: 60px 60px 25px;
-            display: flex;
-            flex-direction: column;
         }
 
         #display-name {
@@ -182,7 +160,7 @@
             line-height: 0.85;
             letter-spacing: -0.02em;
             text-transform: uppercase;
-            color: var(--ink);
+            color: #0a0a0a;
             font-weight: 900;
             font-stretch: 125%;
         }
@@ -191,7 +169,7 @@
             font-family: 'JetBrains Mono';
             font-size: 13px;
             letter-spacing: 2px;
-            color: var(--accent);
+            color: #ff3e00;
             margin-top: 15px;
             font-weight: 700;
         }
@@ -199,8 +177,8 @@
         .divider {
             width: 40px;
             height: 2px;
-            background: var(--ink);
-            margin: 20px 60px 0;
+            background: #0a0a0a;
+            margin: 0 60px;
         }
 
         .body-content {
@@ -209,21 +187,18 @@
             margin-top: 25px;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
         #bio-container {
             height: 360px;
-            border-left: 10px solid var(--ink);
+            border-left: 10px solid #0a0a0a;
             padding-left: 30px;
-            overflow: hidden;
             margin-bottom: 40px;
         }
 
         #bio-lead {
             font-weight: 900;
-            color: var(--ink);
-            display: block;
+            color: #0a0a0a;
             line-height: 1.2;
             margin-bottom: 8px;
         }
@@ -236,8 +211,6 @@
 
         #skills-container {
             height: 110px;
-            display: flex;
-            align-items: flex-start;
         }
 
         .skill-list {
@@ -249,8 +222,8 @@
         .skill-pill {
             font-family: 'JetBrains Mono';
             font-weight: 700;
-            background: var(--ink);
-            color: var(--cream);
+            background: #0a0a0a;
+            color: #f3f0e5;
             padding: 5px 10px;
             text-transform: uppercase;
             font-size: 9px;
@@ -259,8 +232,8 @@
 
         .footer {
             height: 60px;
-            background: var(--ink);
-            color: var(--cream);
+            background: #0a0a0a;
+            color: #f3f0e5;
             display: grid;
             grid-template-columns: 1fr 1fr;
             padding: 8px 60px;
@@ -269,40 +242,26 @@
             gap: 4px 12px;
         }
 
-        .footer > * {
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
         #display-footer-email { grid-column: 1; grid-row: 1; text-align: left; }
-        #display-footer-linkedin { grid-column: 1; grid-row: 2; text-align: left; color: var(--cream); text-decoration: none; }
+        #display-footer-linkedin { grid-column: 1; grid-row: 2; text-align: left; color: #f3f0e5; text-decoration: none; }
         #display-footer-phone { grid-column: 2; grid-row: 1; text-align: right; }
         #display-footer-location { grid-column: 2; grid-row: 2; text-align: right; }
 
-        /* Mobile: make preview scrollable and properly sized */
-        @media (max-width: 750px) {
+        /* Mobile: horizontal scroll only, no scaling of canvas */
+        @media (max-width: 700px) {
             body {
                 flex-direction: column;
             }
-            
             .sidebar {
                 width: 100%;
                 height: auto;
-                position: relative;
+                position: static;
                 border-right: none;
                 border-bottom: 1px solid #222;
-                padding: 20px;
             }
-            
             .preview-area {
-                padding: 20px;
-                overflow-x: auto;
-                overflow-y: visible;
                 justify-content: flex-start;
-            }
-            
-            .canvas-wrapper {
-                min-width: 595px;
+                overflow-x: auto;
             }
         }
     </style>
@@ -310,15 +269,15 @@
 <body>
     <aside class="sidebar">
         <div class="sidebar-title">PROFILE</div>
-        <input type="text" id="input-name" placeholder="NAME" value="">
-        <input type="text" id="input-field" placeholder="FIELD" value="">
-        <input type="text" id="input-company" placeholder="COMPANY" value="">
-        <input type="email" id="input-email" placeholder="EMAIL" value="">
-        <input type="tel" id="input-phone" placeholder="PHONE" value="">
-        <input type="text" id="input-location" placeholder="LOCATION" value="">
-        <input type="text" id="input-linkedin" placeholder="LINKEDIN" value="">
+        <input type="text" id="input-name" placeholder="NAME">
+        <input type="text" id="input-field" placeholder="FIELD">
+        <input type="text" id="input-company" placeholder="COMPANY">
+        <input type="email" id="input-email" placeholder="EMAIL">
+        <input type="tel" id="input-phone" placeholder="PHONE">
+        <input type="text" id="input-location" placeholder="LOCATION">
+        <input type="text" id="input-linkedin" placeholder="LINKEDIN">
         <textarea id="input-bio" placeholder="PROFESSIONAL STATEMENT" rows="8"></textarea>
-        <input type="text" id="input-skills" placeholder="SKILLS (comma-separated)" value="">
+        <input type="text" id="input-skills" placeholder="SKILLS (comma-separated)">
         <button class="export-btn" id="export-btn">EXPORT PDF</button>
     </aside>
 
@@ -330,10 +289,10 @@
                     <div class="rib-company" id="display-company"></div>
                 </div>
                 <div class="main">
-                    <header class="header">
+                    <div class="header">
                         <div id="display-name"></div>
                         <span id="display-field"></span>
-                    </header>
+                    </div>
                     <div class="divider"></div>
                     <div class="body-content">
                         <div id="bio-container">
@@ -356,8 +315,7 @@
     </div>
 
     <script>
-        // Get DOM elements
-        const inputs = {
+        const elements = {
             name: document.getElementById('input-name'),
             field: document.getElementById('input-field'),
             company: document.getElementById('input-company'),
@@ -366,169 +324,158 @@
             location: document.getElementById('input-location'),
             linkedin: document.getElementById('input-linkedin'),
             bio: document.getElementById('input-bio'),
-            skills: document.getElementById('input-skills')
+            skills: document.getElementById('input-skills'),
+            displayName: document.getElementById('display-name'),
+            displayField: document.getElementById('display-field'),
+            displayCompany: document.getElementById('display-company'),
+            displayBioLead: document.getElementById('bio-lead'),
+            displayBioBody: document.getElementById('bio-body'),
+            displaySkills: document.getElementById('display-skills'),
+            displayFooterEmail: document.getElementById('display-footer-email'),
+            displayFooterPhone: document.getElementById('display-footer-phone'),
+            displayFooterLinkedin: document.getElementById('display-footer-linkedin'),
+            displayFooterLocation: document.getElementById('display-footer-location')
         };
 
-        const displays = {
-            name: document.getElementById('display-name'),
-            field: document.getElementById('display-field'),
-            company: document.getElementById('display-company'),
-            bioLead: document.getElementById('bio-lead'),
-            bioBody: document.getElementById('bio-body'),
-            skills: document.getElementById('display-skills'),
-            footerEmail: document.getElementById('display-footer-email'),
-            footerPhone: document.getElementById('display-footer-phone'),
-            footerLinkedin: document.getElementById('display-footer-linkedin'),
-            footerLocation: document.getElementById('display-footer-location')
-        };
-
-        // Split bio into lead sentence and body
         function splitBio(text) {
             if (!text) return ['', ''];
-            const match = text.match(/^([^.!?]+[.!?])\s*(.*)$/s);
-            if (match) {
-                return [match[1].trim(), match[2].trim() ? ' ' + match[2].trim() : ''];
+            let sentences = text.match(/[^.!?]+[.!?]+/g);
+            if (sentences && sentences.length > 0) {
+                let lead = sentences[0].trim();
+                let rest = sentences.slice(1).join(' ').trim();
+                return [lead, rest ? ' ' + rest : ''];
             }
             return [text, ''];
         }
 
-        // Update all displayed content
         function updateDisplay() {
-            // Text content
-            displays.name.textContent = inputs.name.value.toUpperCase() || '';
-            displays.field.textContent = inputs.field.value.toUpperCase() || '';
-            displays.company.textContent = inputs.company.value.toUpperCase() || '';
+            // Basic text
+            elements.displayName.textContent = (elements.name.value || '').toUpperCase();
+            elements.displayField.textContent = (elements.field.value || '').toUpperCase();
+            elements.displayCompany.textContent = (elements.company.value || '').toUpperCase();
             
             // Bio
-            const [lead, body] = splitBio(inputs.bio.value);
-            displays.bioLead.textContent = lead;
-            displays.bioBody.textContent = body;
+            const [lead, body] = splitBio(elements.bio.value);
+            elements.displayBioLead.textContent = lead;
+            elements.displayBioBody.textContent = body;
             
             // Footer
-            displays.footerEmail.textContent = inputs.email.value || '';
-            displays.footerPhone.textContent = inputs.phone.value || '';
-            displays.footerLocation.textContent = inputs.location.value || '';
+            elements.displayFooterEmail.textContent = elements.email.value || '';
+            elements.displayFooterPhone.textContent = elements.phone.value || '';
+            elements.displayFooterLocation.textContent = elements.location.value || '';
             
-            const linkedinVal = inputs.linkedin.value.trim();
+            let linkedinVal = elements.linkedin.value.trim();
             if (linkedinVal) {
-                displays.footerLinkedin.textContent = linkedinVal;
-                displays.footerLinkedin.href = linkedinVal.startsWith('http') ? linkedinVal : 'https://' + linkedinVal;
+                elements.displayFooterLinkedin.textContent = linkedinVal;
+                elements.displayFooterLinkedin.href = linkedinVal.startsWith('http') ? linkedinVal : 'https://' + linkedinVal;
             } else {
-                displays.footerLinkedin.textContent = '';
-                displays.footerLinkedin.href = '';
+                elements.displayFooterLinkedin.textContent = '';
+                elements.displayFooterLinkedin.href = '';
             }
             
             // Skills pills
-            displays.skills.innerHTML = '';
-            const skillsText = inputs.skills.value.trim();
+            elements.displaySkills.innerHTML = '';
+            let skillsText = elements.skills.value.trim();
             if (skillsText) {
                 skillsText.split(',').forEach(skill => {
-                    const trimmed = skill.trim();
-                    if (trimmed) {
-                        const pill = document.createElement('span');
+                    let s = skill.trim();
+                    if (s) {
+                        let pill = document.createElement('span');
                         pill.className = 'skill-pill';
-                        pill.textContent = trimmed.toUpperCase();
-                        displays.skills.appendChild(pill);
+                        pill.textContent = s.toUpperCase();
+                        elements.displaySkills.appendChild(pill);
                     }
                 });
             }
             
-            // Dynamic font sizing for name
-            const nameEl = displays.name;
-            let fontSize = 32;
-            nameEl.style.fontSize = fontSize + 'px';
-            while (nameEl.scrollWidth > 475 && fontSize > 20) {
-                fontSize--;
-                nameEl.style.fontSize = fontSize + 'px';
+            // Auto-fit name size
+            let nameSize = 32;
+            elements.displayName.style.fontSize = nameSize + 'px';
+            while (elements.displayName.scrollWidth > 465 && nameSize > 20) {
+                nameSize--;
+                elements.displayName.style.fontSize = nameSize + 'px';
             }
-            while (nameEl.scrollWidth < 400 && fontSize < 47) {
-                fontSize++;
-                nameEl.style.fontSize = fontSize + 'px';
+            while (elements.displayName.scrollWidth < 350 && nameSize < 47) {
+                nameSize++;
+                elements.displayName.style.fontSize = nameSize + 'px';
             }
             
-            // Dynamic bio sizing
-            const bioContainer = document.getElementById('bio-container');
-            const bioLeadEl = displays.bioLead;
-            const bioBodyEl = displays.bioBody;
-            
+            // Auto-fit bio
             if (lead) {
-                let bodySize = 14;
-                bioBodyEl.style.fontSize = bodySize + 'px';
-                bioLeadEl.style.fontSize = (bodySize + 3) + 'px';
+                let bioSize = 14;
+                elements.displayBioBody.style.fontSize = bioSize + 'px';
+                elements.displayBioLead.style.fontSize = (bioSize + 3) + 'px';
                 
-                while (bioContainer.scrollHeight > 360 && bodySize > 9) {
-                    bodySize -= 0.5;
-                    bioBodyEl.style.fontSize = bodySize + 'px';
-                    bioLeadEl.style.fontSize = (bodySize + 3) + 'px';
+                let bioContainer = document.getElementById('bio-container');
+                let attempts = 0;
+                while (bioContainer.scrollHeight > 360 && bioSize > 9 && attempts < 30) {
+                    bioSize -= 0.5;
+                    elements.displayBioBody.style.fontSize = bioSize + 'px';
+                    elements.displayBioLead.style.fontSize = (bioSize + 3) + 'px';
+                    attempts++;
                 }
             }
         }
 
-        // Debounced update
-        let updateTimeout;
+        let timeout;
         function handleInput() {
-            clearTimeout(updateTimeout);
-            updateTimeout = setTimeout(updateDisplay, 50);
+            clearTimeout(timeout);
+            timeout = setTimeout(updateDisplay, 50);
         }
 
-        // Add event listeners
-        Object.values(inputs).forEach(input => {
-            if (input) input.addEventListener('input', handleInput);
+        Object.values(elements).forEach(el => {
+            if (el && el.addEventListener) el.addEventListener('input', handleInput);
         });
 
-        // PDF Generation - FIXED: no white line
         async function generatePDF() {
-            const name = inputs.name.value.trim();
-            if (!name || !inputs.field.value.trim()) {
+            if (!elements.name.value.trim() || !elements.field.value.trim()) {
                 alert('Please fill in Name and Field');
                 return;
             }
             
-            const btn = document.getElementById('export-btn');
-            const originalText = btn.textContent;
+            let btn = document.getElementById('export-btn');
+            let originalText = btn.textContent;
             btn.textContent = 'GENERATING...';
             btn.disabled = true;
             
             try {
-                const canvas = document.getElementById('canvas');
+                let canvas = document.getElementById('canvas');
                 
-                // Capture with html2canvas at high resolution
-                const capturedCanvas = await html2canvas(canvas, {
+                // CRITICAL: Capture with exact dimensions - NO EXTRA PIXELS
+                let captured = await html2canvas(canvas, {
                     scale: 2.5,
                     backgroundColor: '#f3f0e5',
-                    logging: false,
-                    useCORS: false,
+                    width: 595,
+                    height: 842,
                     windowWidth: 595,
                     windowHeight: 842
                 });
                 
-                // Get image data and crop exactly to 595x842 to remove any white line
-                const imgData = capturedCanvas.toDataURL('image/jpeg', 1.0);
+                // Create a new canvas and crop to exact 595x842 to eliminate white line
+                let finalCanvas = document.createElement('canvas');
+                finalCanvas.width = 595;
+                finalCanvas.height = 842;
+                let ctx = finalCanvas.getContext('2d');
+                ctx.drawImage(captured, 0, 0, 595, 842);
                 
-                const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({
-                    unit: 'px',
-                    format: [595, 842],
-                    orientation: 'portrait'
-                });
+                let imgData = finalCanvas.toDataURL('image/jpeg', 1.0);
+                let { jsPDF } = window.jspdf;
+                let pdf = new jsPDF({ unit: 'px', format: [595, 842], orientation: 'portrait' });
+                pdf.addImage(imgData, 'JPEG', 0, 0, 595, 842);
                 
-                // Add image - use exact dimensions to fill page completely
-                pdf.addImage(imgData, 'JPEG', 0, 0, 595, 842, null, 'FAST');
-                pdf.save(name.replace(/[^a-z0-9]/gi, '_') + '_Portfolio.pdf');
+                let fileName = (elements.name.value || 'portfolio').replace(/[^a-z0-9]/gi, '_') + '.pdf';
+                pdf.save(fileName);
                 
-            } catch (error) {
-                console.error(error);
-                alert('PDF generation failed. Please try again.');
+            } catch (err) {
+                console.error(err);
+                alert('PDF failed: ' + err.message);
             } finally {
                 btn.textContent = originalText;
                 btn.disabled = false;
             }
         }
-
-        // Export button
-        document.getElementById('export-btn').addEventListener('click', generatePDF);
         
-        // Initial update
+        document.getElementById('export-btn').addEventListener('click', generatePDF);
         updateDisplay();
     </script>
 </body>
