@@ -111,6 +111,14 @@
             padding: 20px;
         }
 
+        /* Mobile: allow horizontal scroll to see full canvas */
+        @media (max-width: 768px) {
+            .viewport {
+                overflow: auto;
+                justify-content: flex-start;
+            }
+        }
+
         #canvas {
             width: var(--canvas-width);
             height: var(--canvas-height);
@@ -355,7 +363,6 @@
             word-break: break-word;
         }
 
-        /* MOBILE: just make viewport scrollable, keep canvas at native size */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -370,17 +377,6 @@
                 border-bottom: 1px solid #222;
                 max-height: none;
                 overflow-y: visible;
-            }
-
-            .viewport {
-                padding: 20px;
-                overflow: auto;
-                justify-content: flex-start;
-            }
-
-            /* Canvas stays at full 595x842, viewport scrolls - exactly like original */
-            #canvas {
-                margin: 0 auto;
             }
         }
     </style>
@@ -598,7 +594,7 @@
             debounceTimer = setTimeout(update, 100);
         }
 
-        function generatePDF() {
+        async function generatePDF() {
             const name = elements.inputs.name.value?.trim() || 'User';
             if (!name || !elements.inputs.field.value?.trim()) {
                 alert('Please fill in at least Name and Field');
@@ -608,27 +604,27 @@
             const fileName = name.replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
             const canvas = document.getElementById('canvas');
             
-            if (!canvas) {
-                console.error('Canvas element not found');
-                return;
-            }
-
-            // Force canvas to its native dimensions for PDF capture
-            const originalWidth = canvas.style.width;
-            const originalHeight = canvas.style.height;
-            canvas.style.width = '595px';
-            canvas.style.height = '842px';
+            // Store original styles
+            const originalOverflow = canvas.style.overflow;
+            const originalPosition = canvas.style.position;
             
-            // Use html2pdf with proper settings to capture the ENTIRE canvas
+            // Ensure canvas is fully visible
+            canvas.style.overflow = 'visible';
+            canvas.style.position = 'relative';
+            
+            // Force a reflow to ensure all content is rendered
+            await new Promise(resolve => setTimeout(resolve, 50));
+            
             const opt = {
                 margin: 0,
                 filename: fileName,
-                image: { type: 'jpeg', quality: 0.98 },
+                image: { type: 'jpeg', quality: 1.0 },
                 html2canvas: { 
-                    scale: 3, 
+                    scale: 2,
                     useCORS: true,
                     logging: false,
                     letterRendering: true,
+                    backgroundColor: '#f3f0e5',
                     windowWidth: 595,
                     windowHeight: 842
                 },
@@ -639,19 +635,16 @@
                 }
             };
             
-            // Small delay to ensure style is applied
-            setTimeout(() => {
-                html2pdf().set(opt).from(canvas).save().then(() => {
-                    // Restore original styles
-                    canvas.style.width = originalWidth;
-                    canvas.style.height = originalHeight;
-                }).catch((error) => {
-                    console.error('PDF generation failed:', error);
-                    canvas.style.width = originalWidth;
-                    canvas.style.height = originalHeight;
-                    alert('Failed to generate PDF. Please try again.');
-                });
-            }, 100);
+            try {
+                await html2pdf().set(opt).from(canvas).save();
+            } catch (error) {
+                console.error('PDF generation failed:', error);
+                alert('Failed to generate PDF. Please try again.');
+            } finally {
+                // Restore styles
+                canvas.style.overflow = originalOverflow;
+                canvas.style.position = originalPosition;
+            }
         }
 
         function initializeApp() {
