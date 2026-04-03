@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Portfolio One-Pager Builder</title>
+    <title>PDF Template Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=Inter:wght@400;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -267,7 +267,7 @@
 </head>
 <body>
     <aside class="sidebar">
-        <div class="sidebar-title">PROFILE</div>
+        <div class="sidebar-title">PDF TEMPLATE</div>
         <input type="text"  id="input-name"     placeholder="NAME"                     maxlength="30"  autocomplete="name">
         <input type="text"  id="input-field"    placeholder="FIELD"                    maxlength="30"  autocomplete="off">
         <input type="text"  id="input-company"  placeholder="COMPANY"                  maxlength="50"  autocomplete="organization">
@@ -446,7 +446,7 @@
                 return;
             }
 
-            const fileName = el.inp.name.value.trim().replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
+            const fileName = el.inp.name.value.trim().replace(/[^a-zA-Z0-9]/g, '_') + '.pdf';
             const btn = el.exportBtn;
             btn.textContent = 'GENERATING…';
             btn.disabled = true;
@@ -464,16 +464,19 @@
                 top: 0; left: 0;
                 width: ${CANVAS_W}px;
                 height: ${CANVAS_H}px;
-                overflow: visible;
-                z-index: -9999;
-                opacity: 1;
+                overflow: hidden;
+                z-index: 99999;
+                visibility: hidden;
                 pointer-events: none;
             `;
             document.body.appendChild(wrapper);
 
-            // Move the live canvas into the wrapper at full size
+            // Move the live canvas into the wrapper at zoom:1 (full size)
             el.canvas.style.zoom = '1';
             wrapper.appendChild(el.canvas);
+
+            // Scroll to top so fixed positioning aligns to true (0,0)
+            window.scrollTo(0, 0);
 
             await new Promise(r => setTimeout(r, 80));
 
@@ -489,8 +492,6 @@
                     y: 0,
                     scrollX: 0,
                     scrollY: 0,
-                    windowWidth:  CANVAS_W,
-                    windowHeight: CANVAS_H,
                 });
 
                 const imgData = captured.toDataURL('image/png');
