@@ -446,7 +446,7 @@
                 return;
             }
 
-            const fileName = el.inp.name.value.trim().replace(/[^a-zA-Z0-9]/g, '_') + '.pdf';
+            const fileName = el.inp.name.value.trim() + '.pdf';
             const btn = el.exportBtn;
             btn.textContent = 'GENERATING…';
             btn.disabled = true;
@@ -466,7 +466,7 @@
                 height: ${CANVAS_H}px;
                 overflow: hidden;
                 z-index: 99999;
-                visibility: hidden;
+                opacity: 0;
                 pointer-events: none;
             `;
             document.body.appendChild(wrapper);
