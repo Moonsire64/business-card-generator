@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Portfolio One-Pager Builder — Full‑Page PDF Export</title>
+    <title>Portfolio One-Pager Builder</title>
     <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@125,900&family=Inter:wght@400;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -116,22 +116,18 @@
             box-shadow: 0 20px 35px rgba(0,0,0,0.5);
         }
 
-        /* Hidden clone for PDF export — never visible, always at native resolution */
-        .pdf-clone-container {
-            position: fixed;
-            top: -9999px;
-            left: -9999px;
-            visibility: hidden;
+        .watermark {
+            position: absolute;
+            top: 45%;
+            left: 60%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 180px;
+            font-weight: bold;
+            color: rgba(0,0,0,0.11);
             pointer-events: none;
-            z-index: -1;
-        }
-
-        .pdf-clone {
-            width: 595px;
-            height: 842px;
-            background: var(--ink);
-            display: grid;
-            grid-template-columns: 70px 1fr;
+            white-space: nowrap;
+            z-index: 1;
+            font-family: 'Helvetica', sans-serif;
         }
 
         .rib {
@@ -176,7 +172,7 @@
 
         .main {
             background: var(--cream);
-            height: 842px;
+            height: var(--canvas-height);
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -191,7 +187,7 @@
             flex-shrink: 0;
         }
 
-        #display-name, .pdf-display-name {
+        #display-name {
             font-family: 'Archivo', sans-serif;
             line-height: 0.85;
             letter-spacing: -0.02em;
@@ -203,7 +199,7 @@
             font-stretch: 125%;
         }
 
-        #display-field, .pdf-display-field {
+        #display-field {
             font-family: 'JetBrains Mono';
             font-size: 13px;
             letter-spacing: 2px;
@@ -230,7 +226,7 @@
             overflow: hidden;
         }
 
-        #bio-container, .pdf-bio-container {
+        #bio-container {
             height: var(--layout-bio-height);
             border-left: 10px solid var(--ink);
             padding-left: 30px;
@@ -239,7 +235,7 @@
             margin-bottom: 40px;
         }
 
-        #bio-lead, .pdf-bio-lead {
+        #bio-lead {
             font-weight: 900;
             color: var(--ink);
             display: block;
@@ -247,14 +243,14 @@
             margin-bottom: 8px;
         }
 
-        #bio-body, .pdf-bio-body {
+        #bio-body {
             font-weight: 400;
             color: #333;
             line-height: 1.4;
             display: block;
         }
 
-        #skills-container, .pdf-skills-container {
+        #skills-container {
             height: var(--layout-skills-height);
             display: flex;
             align-items: flex-start;
@@ -294,11 +290,13 @@
             column-gap: 12px;
         }
 
-        #display-footer-email, .pdf-footer-email    { grid-column:1; grid-row:1; justify-self:start; word-break:break-word; }
-        #display-footer-linkedin, .pdf-footer-linkedin { grid-column:1; grid-row:2; justify-self:start; word-break:break-word; color:var(--cream); text-decoration:none; }
-        #display-footer-phone, .pdf-footer-phone    { grid-column:2; grid-row:1; justify-self:end; word-break:break-word; }
-        #display-footer-location, .pdf-footer-location { grid-column:2; grid-row:2; justify-self:end; word-break:break-word; }
+        #display-footer-email    { grid-column:1; grid-row:1; justify-self:start; word-break:break-word; }
+        #display-footer-linkedin { grid-column:1; grid-row:2; justify-self:start; word-break:break-word; color:var(--cream); text-decoration:none; }
+        #display-footer-linkedin:hover { text-decoration:underline; }
+        #display-footer-phone    { grid-column:2; grid-row:1; justify-self:end; word-break:break-word; }
+        #display-footer-location { grid-column:2; grid-row:2; justify-self:end; word-break:break-word; }
 
+        /* ── Mobile ── */
         @media (max-width: 768px) {
             body {
                 flex-direction: column;
@@ -318,10 +316,6 @@
                 padding: 16px 0;
                 justify-content: flex-start;
                 align-items: flex-start;
-            }
-            #canvas {
-                transform: scale(0.98);
-                transform-origin: top left;
             }
         }
     </style>
@@ -371,9 +365,6 @@
         </div>
     </main>
 
-    <!-- Hidden clone container for PDF export -->
-    <div class="pdf-clone-container" id="pdf-clone-container"></div>
-
     <script>
         const CANVAS_W = 595;
         const CANVAS_H = 842;
@@ -416,8 +407,21 @@
             },
             canvas:    document.getElementById('canvas'),
             exportBtn: document.getElementById('export-btn'),
-            cloneContainer: document.getElementById('pdf-clone-container'),
         };
+
+        function scaleCanvas() {
+            if (window.innerWidth > 768) {
+                el.canvas.style.zoom = '';
+                return;
+            }
+            const viewport = el.canvas.parentElement;
+            el.canvas.style.zoom = '';
+            const available = viewport.getBoundingClientRect().width;
+            const zoom = Math.min(1, Math.floor((available / CANVAS_W) * 1000) / 1000) * 0.98;
+            el.canvas.style.zoom = zoom;
+        }
+
+        window.addEventListener('resize', scaleCanvas);
 
         function splitBio(text) {
             if (!text) return ['', ''];
@@ -476,7 +480,7 @@
                 list.style.fontSize = (size -= config.skills.step) + 'px';
         }
 
-        function updatePreview() {
+        function update() {
             el.out.name.textContent     = el.inp.name.value.toUpperCase();
             el.out.field.textContent    = el.inp.field.value.toUpperCase();
             el.out.company.textContent  = el.inp.company.value.toUpperCase();
@@ -489,112 +493,8 @@
             fitName(); fitBio(); fitSkills();
         }
 
-        // Build a fresh clone for PDF export — completely independent
-        function buildPDFClone() {
-            const cloneHtml = `
-                <div class="pdf-clone">
-                    <div class="rib">
-                        <div class="rib-company" id="clone-company"></div>
-                    </div>
-                    <div class="main">
-                        <header class="header">
-                            <div class="pdf-display-name" id="clone-name"></div>
-                            <span class="pdf-display-field" id="clone-field"></span>
-                        </header>
-                        <div class="divider"></div>
-                        <div class="body-content">
-                            <section class="pdf-bio-container" id="clone-bio-container">
-                                <span class="pdf-bio-lead" id="clone-bio-lead"></span>
-                                <span class="pdf-bio-body" id="clone-bio-body"></span>
-                            </section>
-                            <section class="pdf-skills-container" id="clone-skills-container">
-                                <div class="skill-list" id="clone-skills"></div>
-                            </section>
-                        </div>
-                        <footer class="footer">
-                            <span class="pdf-footer-email" id="clone-email"></span>
-                            <span class="pdf-footer-phone" id="clone-phone"></span>
-                            <a class="pdf-footer-linkedin" id="clone-linkedin" href="" target="_blank" rel="noopener noreferrer"></a>
-                            <span class="pdf-footer-location" id="clone-location"></span>
-                        </footer>
-                    </div>
-                </div>
-            `;
-            el.cloneContainer.innerHTML = cloneHtml;
-            
-            const clone = {
-                name:     document.getElementById('clone-name'),
-                field:    document.getElementById('clone-field'),
-                company:  document.getElementById('clone-company'),
-                bioLead:  document.getElementById('clone-bio-lead'),
-                bioBody:  document.getElementById('clone-bio-body'),
-                skills:   document.getElementById('clone-skills'),
-                email:    document.getElementById('clone-email'),
-                phone:    document.getElementById('clone-phone'),
-                linkedin: document.getElementById('clone-linkedin'),
-                location: document.getElementById('clone-location'),
-                bioContainer: document.getElementById('clone-bio-container'),
-                skillsContainer: document.getElementById('clone-skills-container'),
-            };
-            
-            return clone;
-        }
-
-        // Apply current data to clone and fit its content
-        function applyToClone(clone) {
-            clone.name.textContent     = el.inp.name.value.toUpperCase();
-            clone.field.textContent    = el.inp.field.value.toUpperCase();
-            clone.company.textContent  = el.inp.company.value.toUpperCase();
-            clone.email.textContent    = el.inp.email.value;
-            clone.phone.textContent    = el.inp.phone.value;
-            clone.location.textContent = el.inp.location.value;
-            const li = el.inp.linkedin.value;
-            clone.linkedin.textContent = li;
-            clone.linkedin.href = li ? (li.startsWith('http') ? li : 'https://' + li) : '';
-            
-            // Fit name in clone
-            let size = config.name.minSize;
-            clone.name.style.fontSize = size + 'px';
-            const headerWidth = 595 - 120; // approximate header width
-            while (clone.name.scrollWidth <= headerWidth && clone.name.scrollHeight < config.name.maxHeight && size < config.name.maxSize) {
-                clone.name.style.fontSize = (++size) + 'px';
-            }
-            clone.name.style.fontSize = (size - 1) + 'px';
-            
-            // Fit bio in clone
-            const [l, b] = splitBio(el.inp.bio.value);
-            clone.bioLead.textContent = l;
-            clone.bioBody.textContent = b;
-            if (l) {
-                const setBio = s => {
-                    clone.bioBody.style.fontSize = s + 'px';
-                    clone.bioLead.style.fontSize = (s + config.bio.leadOffset) + 'px';
-                };
-                let bioSize = config.bio.baseSize, attempts = 0;
-                setBio(bioSize);
-                while (clone.bioContainer.scrollHeight > config.bio.containerHeight && bioSize > config.bio.minSize && attempts++ < config.sizing.maxAttempts) 
-                    setBio(bioSize -= config.bio.step);
-                attempts = 0;
-                while (clone.bioContainer.scrollHeight <= config.bio.containerHeight && bioSize < config.bio.maxSize && attempts++ < config.sizing.maxAttempts) 
-                    setBio(bioSize += config.bio.step);
-                setBio(bioSize - config.bio.step);
-            }
-            
-            // Fit skills in clone
-            clone.skills.innerHTML = '';
-            (el.inp.skills.value || '').split(',').forEach(s => {
-                const t = s.trim();
-                if (!t) return;
-                const pill = document.createElement('span');
-                pill.className = 'skill-pill';
-                pill.textContent = t.toUpperCase();
-                clone.skills.appendChild(pill);
-            });
-            let skillSize = config.skills.baseSize, attempts = 0;
-            clone.skills.style.fontSize = skillSize + 'px';
-            while (clone.skillsContainer.scrollHeight > config.skills.height && skillSize > config.skills.minSize && attempts++ < config.sizing.maxAttempts)
-                clone.skills.style.fontSize = (skillSize -= config.skills.step) + 'px';
-        }
+        let debounceTimer;
+        const debouncedUpdate = () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(update, 100); };
 
         async function generatePDF() {
             if (!el.inp.name.value?.trim() || !el.inp.field.value?.trim()) {
@@ -602,58 +502,47 @@
                 return;
             }
 
-            const fileName = (el.inp.name.value.trim().replace(/[^a-zA-Z0-9]/g, '_') || 'portfolio') + '_Sheet.pdf';
+            const fileName = el.inp.name.value.trim().replace(/[^a-zA-Z0-9]/g, '_') + '_Sheet.pdf';
             const btn = el.exportBtn;
-            const originalText = btn.textContent;
             btn.textContent = 'GENERATING…';
             btn.disabled = true;
 
+            const prevZoom = el.canvas.style.zoom;
+            el.canvas.style.zoom = '';
+
+            await new Promise(r => setTimeout(r, 60));
+
             try {
-                // Build fresh independent clone
-                const clone = buildPDFClone();
-                applyToClone(clone);
-                
-                // Wait for DOM update
-                await new Promise(r => setTimeout(r, 50));
-                
-                const cloneElement = document.querySelector('.pdf-clone');
-                const capturedCanvas = await html2canvas(cloneElement, {
-                    scale: 3,
+                const captured = await html2canvas(el.canvas, {
+                    scale: 2,
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#f3f0e5',
-                    width: CANVAS_W,
+                    width:  CANVAS_W,
                     height: CANVAS_H,
                 });
-                
-                const imgData = capturedCanvas.toDataURL('image/png');
+
+                const imgData = captured.toDataURL('image/png');
+
                 const { jsPDF } = window.jspdf;
-                const pdf = new jsPDF({
-                    unit: 'pt',
-                    format: [CANVAS_W, CANVAS_H],
-                    orientation: 'portrait',
-                    compress: true
-                });
-                
-                const pageWidth = pdf.internal.pageSize.getWidth();
-                const pageHeight = pdf.internal.pageSize.getHeight();
-                pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
+                const pdf = new jsPDF({ unit: 'pt', format: [CANVAS_W, CANVAS_H], orientation: 'portrait' });
+                pdf.addImage(imgData, 'PNG', 0, 0, CANVAS_W, CANVAS_H, '', 'FAST');
                 pdf.save(fileName);
-                
+
             } catch (err) {
-                console.error('PDF generation error:', err);
-                alert('PDF export failed. Please refresh and try again.\n' + (err.message || 'Unknown error'));
+                console.error(err);
+                alert('PDF generation failed. Please try again.');
             } finally {
-                // Clean up clone
-                el.cloneContainer.innerHTML = '';
-                btn.textContent = originalText;
+                el.canvas.style.zoom = prevZoom;
+                btn.textContent = 'EXPORT PDF';
                 btn.disabled = false;
             }
         }
 
-        Object.values(el.inp).forEach(i => i.addEventListener('input', updatePreview));
+        Object.values(el.inp).forEach(i => i.addEventListener('input', debouncedUpdate));
         el.exportBtn.addEventListener('click', generatePDF);
-        updatePreview();
+        update();
+        scaleCanvas();
     </script>
 </body>
 </html>
