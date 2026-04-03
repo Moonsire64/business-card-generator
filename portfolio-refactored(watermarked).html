@@ -8,12 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            text-rendering: geometricPrecision;
-        }
+        * { margin:0; padding:0; box-sizing:border-box; text-rendering:geometricPrecision; }
 
         :root {
             --cream: #f3f0e5;
@@ -31,9 +26,7 @@
             --canvas-height: 842px;
         }
 
-        html, body {
-            height: 100%;
-        }
+        html, body { height: 100%; }
 
         body {
             background: #000;
@@ -56,10 +49,7 @@
             overflow-y: auto;
         }
 
-        .sidebar-title {
-            font-weight: 900;
-            color: var(--accent);
-        }
+        .sidebar-title { font-weight: 900; color: var(--accent); }
 
         input, textarea {
             background: #111;
@@ -72,13 +62,8 @@
             font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
             font-weight: 400;
         }
-
         input:focus, textarea:focus { border-color: var(--accent); }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
+        textarea { resize: vertical; min-height: 100px; }
 
         .export-btn {
             margin-top: 10px;
@@ -105,6 +90,19 @@
             padding: 20px;
         }
 
+        .watermark {
+            position: absolute;
+            top: 45%; left: 60%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 180px;
+            font-weight: bold;
+            color: rgba(0,0,0,0.11);
+            pointer-events: none;
+            white-space: nowrap;
+            z-index: 1;
+            font-family: Helvetica, sans-serif;
+        }
+
         #canvas {
             width: var(--canvas-width);
             height: var(--canvas-height);
@@ -116,24 +114,10 @@
             box-shadow: 0 20px 35px rgba(0,0,0,0.5);
         }
 
-        .watermark {
-            position: absolute;
-            top: 45%;
-            left: 60%;
-            transform: translate(-50%, -50%) rotate(-45deg);
-            font-size: 180px;
-            font-weight: bold;
-            color: rgba(0,0,0,0.11);
-            pointer-events: none;
-            white-space: nowrap;
-            z-index: 1;
-            font-family: 'Helvetica', sans-serif;
-        }
-
         .rib {
             background: linear-gradient(180deg,
                 var(--accent-dark) 0px, var(--accent-dark) 130px,
-                var(--accent)      130px, var(--accent) 100%);
+                var(--accent) 130px, var(--accent) 100%);
             position: relative;
             display: flex;
             align-items: center;
@@ -235,34 +219,11 @@
             margin-bottom: 40px;
         }
 
-        #bio-lead {
-            font-weight: 900;
-            color: var(--ink);
-            display: block;
-            line-height: 1.2;
-            margin-bottom: 8px;
-        }
+        #bio-lead { font-weight: 900; color: var(--ink); display: block; line-height: 1.2; margin-bottom: 8px; }
+        #bio-body { font-weight: 400; color: #333; line-height: 1.4; display: block; }
 
-        #bio-body {
-            font-weight: 400;
-            color: #333;
-            line-height: 1.4;
-            display: block;
-        }
-
-        #skills-container {
-            height: var(--layout-skills-height);
-            display: flex;
-            align-items: flex-start;
-            padding-bottom: 10px;
-        }
-
-        .skill-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            width: 100%;
-        }
+        #skills-container { height: var(--layout-skills-height); display: flex; align-items: flex-start; padding-bottom: 10px; }
+        .skill-list { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; }
 
         .skill-pill {
             font-family: 'JetBrains Mono';
@@ -298,25 +259,9 @@
 
         /* ── Mobile ── */
         @media (max-width: 768px) {
-            body {
-                flex-direction: column;
-                height: auto;
-                overflow-y: auto;
-                overflow-x: hidden;
-            }
-            .sidebar {
-                width: 100%;
-                padding: 20px;
-                border-right: none;
-                border-bottom: 1px solid #222;
-                overflow-y: visible;
-            }
-            .viewport {
-                overflow: visible;
-                padding: 16px 0;
-                justify-content: flex-start;
-                align-items: flex-start;
-            }
+            body { flex-direction: column; height: auto; overflow-y: auto; overflow-x: hidden; }
+            .sidebar { width: 100%; padding: 20px; border-right: none; border-bottom: 1px solid #222; overflow-y: visible; }
+            .viewport { overflow: visible; padding: 16px 0; justify-content: flex-start; align-items: flex-start; }
         }
     </style>
 </head>
@@ -337,6 +282,7 @@
 
     <main class="viewport">
         <div id="canvas">
+            <div class="watermark">DEMO</div>
             <div class="rib">
                 <div class="rib-company" id="display-company"></div>
             </div>
@@ -409,20 +355,18 @@
             exportBtn: document.getElementById('export-btn'),
         };
 
+        // ── Mobile preview scaling ────────────────────────────────────────────
         function scaleCanvas() {
-            if (window.innerWidth > 768) {
-                el.canvas.style.zoom = '';
-                return;
-            }
+            if (window.innerWidth > 768) { el.canvas.style.zoom = ''; return; }
             const viewport = el.canvas.parentElement;
             el.canvas.style.zoom = '';
             const available = viewport.getBoundingClientRect().width;
             const zoom = Math.min(1, Math.floor((available / CANVAS_W) * 1000) / 1000) * 0.98;
             el.canvas.style.zoom = zoom;
         }
-
         window.addEventListener('resize', scaleCanvas);
 
+        // ── Text fitting ──────────────────────────────────────────────────────
         function splitBio(text) {
             if (!text) return ['', ''];
             const sentences = text.split(/(?<=[.!?])\s+/);
@@ -449,12 +393,7 @@
             lead.textContent = l;
             body.textContent = b;
             if (!l) return;
-
-            const set = s => {
-                body.style.fontSize = s + 'px';
-                lead.style.fontSize = (s + config.bio.leadOffset) + 'px';
-            };
-
+            const set = s => { body.style.fontSize = s + 'px'; lead.style.fontSize = (s + config.bio.leadOffset) + 'px'; };
             let size = config.bio.baseSize, a = 0;
             set(size);
             while (box.scrollHeight > config.bio.containerHeight && size > config.bio.minSize && a++ < config.sizing.maxAttempts) set(size -= config.bio.step);
@@ -496,6 +435,11 @@
         let debounceTimer;
         const debouncedUpdate = () => { clearTimeout(debounceTimer); debounceTimer = setTimeout(update, 100); };
 
+        // ── PDF export ────────────────────────────────────────────────────────
+        // The preview zoom is a CSS property on the element. For capture we
+        // move the canvas temporarily into a fixed full-size wrapper that
+        // counteracts any zoom, capture it, then put it back. The preview
+        // element itself never changes size or content.
         async function generatePDF() {
             if (!el.inp.name.value?.trim() || !el.inp.field.value?.trim()) {
                 alert('Please fill in at least Name and Field');
@@ -507,10 +451,31 @@
             btn.textContent = 'GENERATING…';
             btn.disabled = true;
 
-            const prevZoom = el.canvas.style.zoom;
-            el.canvas.style.zoom = '';
+            // Save current zoom and position in DOM
+            const prevZoom   = el.canvas.style.zoom;
+            const parent     = el.canvas.parentNode;
+            const nextSibling = el.canvas.nextSibling;
 
-            await new Promise(r => setTimeout(r, 60));
+            // Create a temporary wrapper positioned off-screen at exactly
+            // CANVAS_W × CANVAS_H with no zoom, no clipping
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = `
+                position: fixed;
+                top: 0; left: 0;
+                width: ${CANVAS_W}px;
+                height: ${CANVAS_H}px;
+                overflow: visible;
+                z-index: -9999;
+                opacity: 1;
+                pointer-events: none;
+            `;
+            document.body.appendChild(wrapper);
+
+            // Move the live canvas into the wrapper at full size
+            el.canvas.style.zoom = '1';
+            wrapper.appendChild(el.canvas);
+
+            await new Promise(r => setTimeout(r, 80));
 
             try {
                 const captured = await html2canvas(el.canvas, {
@@ -523,7 +488,6 @@
                 });
 
                 const imgData = captured.toDataURL('image/png');
-
                 const { jsPDF } = window.jspdf;
                 const pdf = new jsPDF({ unit: 'pt', format: [CANVAS_W, CANVAS_H], orientation: 'portrait' });
                 pdf.addImage(imgData, 'PNG', 0, 0, CANVAS_W, CANVAS_H, '', 'FAST');
@@ -533,7 +497,12 @@
                 console.error(err);
                 alert('PDF generation failed. Please try again.');
             } finally {
+                // Put the canvas back exactly where it was
                 el.canvas.style.zoom = prevZoom;
+                if (nextSibling) parent.insertBefore(el.canvas, nextSibling);
+                else parent.appendChild(el.canvas);
+                document.body.removeChild(wrapper);
+
                 btn.textContent = 'EXPORT PDF';
                 btn.disabled = false;
             }
