@@ -458,9 +458,14 @@
 
             // Create a temporary wrapper positioned off-screen at exactly
             // CANVAS_W × CANVAS_H with no zoom, no clipping
+            // Scroll to top first, then place wrapper at absolute (0,0)
+            // so html2canvas sees the element at document origin with no offset
+            window.scrollTo(0, 0);
+            await new Promise(r => requestAnimationFrame(r));
+
             const wrapper = document.createElement('div');
             wrapper.style.cssText = `
-                position: fixed;
+                position: absolute;
                 top: 0; left: 0;
                 width: ${CANVAS_W}px;
                 height: ${CANVAS_H}px;
@@ -471,12 +476,8 @@
             `;
             document.body.appendChild(wrapper);
 
-            // Move the live canvas into the wrapper at zoom:1 (full size)
             el.canvas.style.zoom = '1';
             wrapper.appendChild(el.canvas);
-
-            // Scroll to top so fixed positioning aligns to true (0,0)
-            window.scrollTo(0, 0);
 
             await new Promise(r => setTimeout(r, 80));
 
